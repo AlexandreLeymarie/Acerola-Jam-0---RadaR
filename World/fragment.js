@@ -21,6 +21,10 @@ const worldFragmentShaderString = /*glsl*/ `
         float th = 0.02;
         if(fp.x < th || fp.x > 1.-th || fp.y < th || fp.y > 1.-th) col = mix(col, 1.-col, .5);
 
+        if(length(p) < .5+0.2*sin(u_time)){
+            col = vec3(1);
+        }
+
         gl_FragColor = vec4(col, 1);
     }
 `;
