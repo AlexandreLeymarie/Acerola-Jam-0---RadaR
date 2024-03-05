@@ -33,10 +33,16 @@ World.prototype.initGl = function(gl) {
 World.prototype.initUniforms = function(gl){
     this.resolutionUniformLocation = gl.getUniformLocation(this.program, "u_resolution");
     this.timeUniformLocation = gl.getUniformLocation(this.program, "u_time");
+    this.camPosUniformLocation = gl.getUniformLocation(this.program, "u_camPos");
+    this.camZoomUniformLocation = gl.getUniformLocation(this.program, "u_camZoom");
 }
 
 
 World.prototype.update = function(dt){
+
+    this.cam.pos.x = Math.cos(this.time)*2;
+    this.cam.pos.y = Math.sin(this.time)*2;
+    this.cam.zoom = 0.2;
     
     this.time += dt;
 }
@@ -45,6 +51,8 @@ World.prototype.update = function(dt){
 
 World.prototype.draw = function (gl) {
     gl.uniform1f(this.timeUniformLocation, this.time);
+    gl.uniform2f(this.camPosUniformLocation, this.cam.pos.x, this.cam.pos.y);
+    gl.uniform1f(this.camZoomUniformLocation, this.cam.zoom);
 
 
 
