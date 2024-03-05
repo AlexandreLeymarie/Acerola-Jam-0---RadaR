@@ -1,6 +1,6 @@
 
 function World(gl) {
-    this.cam = { pos: vec(0), zoom: 1 };
+    this.cam = { pos: vec(0), zoom: 0.1 };
     this.time = 0;
 
 
@@ -40,9 +40,8 @@ World.prototype.initUniforms = function(gl){
 
 World.prototype.update = function(dt){
 
-    this.cam.pos.x = Math.cos(this.time)*2;
-    this.cam.pos.y = Math.sin(this.time)*2;
-    this.cam.zoom = 0.2;
+    //this.cam.pos.x = Math.cos(this.time)*8;
+    //this.cam.pos.y = Math.sin(this.time)*8;
     
     this.time += dt;
 }
