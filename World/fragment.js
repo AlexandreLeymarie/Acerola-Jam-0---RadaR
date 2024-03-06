@@ -4,6 +4,7 @@ const worldFragmentShaderString = /*glsl*/ `
     #define SKY 1.6*vec3(135,206,235)/255.
     #define WATER 0.5*vec3(57, 89, 204)/255.
     #define PLAYER vec3(117, 85, 74)/255.
+    #define PLAYER_LIGHT vec3(1, 1, 0.7)
 
     uniform vec2 u_resolution;
 
@@ -14,6 +15,12 @@ const worldFragmentShaderString = /*glsl*/ `
     uniform vec2 u_playerPos;
     uniform float u_playerRadius;
     uniform vec2 u_playerVel;
+
+    float rand(float n){return fract(sin(n*37.382) * 43758.5453123);}
+
+    float rand(vec2 p){
+        return fract(1290.326*sin(p.x*24.7865+p.y*8.5703));
+    }
 
     float sdBox( in vec2 p, in vec2 b )
     {
@@ -54,14 +61,15 @@ const worldFragmentShaderString = /*glsl*/ `
 
         float waterLevelValue = waterLevel(p.x);
         vec3 waterCol = col;
-        if(p.y <= waterLevelValue){
+        bool isInWater = p.y <= waterLevelValue;
+        if(isInWater){
             col = WATER;
             if(pUp.y > waterLevelValue){
                 col = mix(col, vec3(1.), 0.5);
             }
             float depth = waterLevelValue-p.y;
             //float playerShadow = 1.-smoothstep(-0.5, 0., abs(p.x-u_playerPos.x) - u_playerRadius)*(1.-step(u_playerPos.y, p.y));
-            col = mix(SKY, col, clamp(0.4+depth*0.05+waterLevel(p.x+sin(p.y*2.+u_time*2.)*0.1)*.1, 0., 1.2));
+            col = mix(SKY, col, clamp(0.4+depth*0.03+waterLevel(p.x+sin(p.y*2.+u_time*2.)*0.1)*.05, 0., 1.2));
             waterCol = col;
 
         }
@@ -76,7 +84,14 @@ const worldFragmentShaderString = /*glsl*/ `
 
 
             if(abs(playerP.y) < 0.35){// && length(playerP) < 0.9){// && abs(playerP.x) > 0.07){
-                col = waterCol;
+                col = mix(PLAYER_LIGHT, waterCol, .2);
+
+                /*if(length(playerP) < 0.1){
+                    col = vec3(1);
+                }*/
+                float lp = length(playerP);
+                col = mix(PLAYER_LIGHT, col, smoothstep(0.05, 0.2, lp));
+                //col = mix(vec3(1, 1, 0.7), col, 1.-0.5*smoothstep(0.1, 1., length(playerP)));
 
                 if(sdBox(playerP-vec2(0.2, -0.1), vec2(0.15)) < 0.){
                     col = vec3(0.05);
@@ -84,6 +99,7 @@ const worldFragmentShaderString = /*glsl*/ `
 
                 col = mix(col, vec3(0.9, 0.9, 1), 0.3);
             }
+
 
             col *= 0.6+z*0.4;
 
@@ -95,7 +111,14 @@ const worldFragmentShaderString = /*glsl*/ `
             if(p.y <= waterLevelValue){
                 col = mix(col, waterCol, 0.5);
             }
+        } else {
+            /*if(abs(p.y-u_playerPos.y) < abs(p.x-u_playerPos.x)*0.4){
+                col = mix(PLAYER_LIGHT, col, 0.5+0.5*smoothstep(2., 4., length(p-u_playerPos)));
+            }*/
         }
+        
+        if(isInWater) col = mix(PLAYER_LIGHT, col, 0.5+0.5*smoothstep(0., 8., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5));
+
 
         gl_FragColor = vec4(col, 1);
     }
