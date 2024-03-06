@@ -3,6 +3,8 @@ function World(gl) {
     this.cam = { pos: vec(0), zoom: 0.1 };
     this.time = 0;
 
+    this.player = new Player(vec(0));
+
 
     this.initGl(gl);
 }
@@ -35,6 +37,9 @@ World.prototype.initUniforms = function(gl){
     this.timeUniformLocation = gl.getUniformLocation(this.program, "u_time");
     this.camPosUniformLocation = gl.getUniformLocation(this.program, "u_camPos");
     this.camZoomUniformLocation = gl.getUniformLocation(this.program, "u_camZoom");
+
+    this.playerPosUniformLocation = gl.getUniformLocation(this.program, "u_playerPos");
+    this.playerRadiusUniformLocation = gl.getUniformLocation(this.program, "u_playerRadius");
 }
 
 
@@ -42,6 +47,8 @@ World.prototype.update = function(dt){
 
     //this.cam.pos.x = Math.cos(this.time)*8;
     //this.cam.pos.y = Math.sin(this.time)*8;
+    this.player.update(dt);
+    this.cam.pos = lerpDt(this.cam.pos, this.player.pos, 0.95, 1, dt);
     
     this.time += dt;
 }
@@ -53,6 +60,8 @@ World.prototype.draw = function (gl) {
     gl.uniform2f(this.camPosUniformLocation, this.cam.pos.x, this.cam.pos.y);
     gl.uniform1f(this.camZoomUniformLocation, this.cam.zoom);
 
+    gl.uniform2f(this.playerPosUniformLocation, this.player.pos.x, this.player.pos.y);
+    gl.uniform1f(this.playerRadiusUniformLocation, this.player.radius);
 
 
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);

@@ -10,10 +10,13 @@ const worldFragmentShaderString = /*glsl*/ `
     uniform vec2 u_camPos;
     uniform float u_camZoom;
 
+    uniform vec2 u_playerPos;
+    uniform float u_playerRadius;
+
     vec2 coordToWorldPos(vec2 c){
         vec2 p = (c-.5*u_resolution.xy)/u_resolution.y;
         p /= u_camZoom;
-        p -= u_camPos;
+        p += u_camPos;
         return p;
     }
 
@@ -27,20 +30,25 @@ const worldFragmentShaderString = /*glsl*/ `
         vec2 p = coordToWorldPos(gl_FragCoord.xy);
         vec2 pUp = coordToWorldPos(gl_FragCoord.xy+vec2(0, 1));
 
-        vec3 col = SKY;
+        vec3 col = mix(SKY*0.7, SKY*1.1, clamp(p.y*0.15, 0., 1.));
 
         float waterLevelValue = waterLevel(p.x);
+        vec3 waterCol;
         if(p.y <= waterLevelValue){
             col = WATER;
             if(pUp.y > waterLevelValue){
                 col = mix(col, vec3(1.), 0.5);
             }
             float depth = waterLevelValue-p.y;
-            col = mix(SKY, col, clamp(0.4+depth*0.08+waterLevel(p.x+sin(p.y*2.+u_time*2.)*0.1)*.1, 0., 1.2));
+            col = mix(SKY, col, clamp(0.4+depth*0.05+waterLevel(p.x+sin(p.y*2.+u_time*2.)*0.1)*.1, 0., 1.2));
+            waterCol = col;
         }
 
-        if(length(p) < 0.5){
+        if(length(p-u_playerPos) <= u_playerRadius){
             col = vec3(0.2, 0.3, 0.4);
+            if(p.y <= waterLevelValue){
+                col = mix(col, waterCol, 0.5);
+            }
         }
 
         gl_FragColor = vec4(col, 1);
