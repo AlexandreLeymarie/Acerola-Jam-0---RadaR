@@ -40,6 +40,7 @@ World.prototype.initUniforms = function(gl){
 
     this.playerPosUniformLocation = gl.getUniformLocation(this.program, "u_playerPos");
     this.playerRadiusUniformLocation = gl.getUniformLocation(this.program, "u_playerRadius");
+    this.playerVelUniformLocation = gl.getUniformLocation(this.program, "u_playerVel");
 }
 
 
@@ -62,6 +63,7 @@ World.prototype.draw = function (gl) {
 
     gl.uniform2f(this.playerPosUniformLocation, this.player.pos.x, this.player.pos.y);
     gl.uniform1f(this.playerRadiusUniformLocation, this.player.radius);
+    gl.uniform2f(this.playerVelUniformLocation, this.player.vel.x, this.player.vel.y);
 
 
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);

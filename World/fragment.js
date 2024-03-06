@@ -3,6 +3,7 @@ const worldFragmentShaderString = /*glsl*/ `
 
     #define SKY 1.6*vec3(135,206,235)/255.
     #define WATER 0.5*vec3(57, 89, 204)/255.
+    #define PLAYER vec3(117, 85, 74)/255.
 
     uniform vec2 u_resolution;
 
@@ -12,6 +13,13 @@ const worldFragmentShaderString = /*glsl*/ `
 
     uniform vec2 u_playerPos;
     uniform float u_playerRadius;
+    uniform vec2 u_playerVel;
+
+    float sdBox( in vec2 p, in vec2 b )
+    {
+        vec2 d = abs(p)-b;
+        return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+    }
 
     vec2 coordToWorldPos(vec2 c){
         vec2 p = (c-.5*u_resolution.xy)/u_resolution.y;
@@ -20,32 +28,70 @@ const worldFragmentShaderString = /*glsl*/ `
         return p;
     }
 
+    mat2 rotate2d(float a){
+        float c = cos(a), s = sin(a);
+        return mat2(c, -s, s, c);
+    }
+
     float waterLevel(float x){
         x *= 0.8;
         float y = sin(x*3.+u_time)*0.1+cos(x*2.-u_time)*0.15;
         return y*0.7;
     }
 
+    float sdPlayer(vec2 p){
+        return length(p-u_playerPos) - u_playerRadius;
+    }
+
     void main(){
         vec2 p = coordToWorldPos(gl_FragCoord.xy);
         vec2 pUp = coordToWorldPos(gl_FragCoord.xy+vec2(0, 1));
+        vec2 pDown = coordToWorldPos(gl_FragCoord.xy+vec2(0, -1));
+        vec2 pRight = coordToWorldPos(gl_FragCoord.xy+vec2(1, 0));
+        vec2 pLeft = coordToWorldPos(gl_FragCoord.xy+vec2(-1, 0));
 
         vec3 col = mix(SKY*0.7, SKY*1.1, clamp(p.y*0.15, 0., 1.));
 
         float waterLevelValue = waterLevel(p.x);
-        vec3 waterCol;
+        vec3 waterCol = col;
         if(p.y <= waterLevelValue){
             col = WATER;
             if(pUp.y > waterLevelValue){
                 col = mix(col, vec3(1.), 0.5);
             }
             float depth = waterLevelValue-p.y;
+            //float playerShadow = 1.-smoothstep(-0.5, 0., abs(p.x-u_playerPos.x) - u_playerRadius)*(1.-step(u_playerPos.y, p.y));
             col = mix(SKY, col, clamp(0.4+depth*0.05+waterLevel(p.x+sin(p.y*2.+u_time*2.)*0.1)*.1, 0., 1.2));
             waterCol = col;
+
         }
 
-        if(length(p-u_playerPos) <= u_playerRadius){
-            col = vec3(0.2, 0.3, 0.4);
+        float sdPlayerValue = sdPlayer(p);
+        if(sdPlayerValue <= 0.){
+            col = PLAYER;//vec3(0.2, 0.3, 0.4);
+            vec2 playerP = (p-u_playerPos)/u_playerRadius;
+
+
+            float z = sqrt(1.-playerP.x*playerP.x-playerP.y*playerP.y);
+
+
+            if(abs(playerP.y) < 0.35){// && length(playerP) < 0.9){// && abs(playerP.x) > 0.07){
+                col = waterCol;
+
+                if(sdBox(playerP-vec2(0.2, -0.1), vec2(0.15)) < 0.){
+                    col = vec3(0.05);
+                }
+
+                col = mix(col, vec3(0.9, 0.9, 1), 0.3);
+            }
+
+            col *= 0.6+z*0.4;
+
+            /*if(sdPlayer(pLeft) > 0. || sdPlayer(pRight) > 0. || sdPlayer(pDown) > 0. || sdPlayer(pUp) > 0.){
+                col *= 0.5;
+            }*/
+
+
             if(p.y <= waterLevelValue){
                 col = mix(col, waterCol, 0.5);
             }

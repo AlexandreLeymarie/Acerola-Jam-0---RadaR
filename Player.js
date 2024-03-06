@@ -23,6 +23,8 @@ function Player(pos) {
 
     this.vel = vec(0);
     this.spd = 5;
+
+    this.lookingAtRadar = false;
 }
 
 Player.prototype.update = function (dt) {

@@ -1,6 +1,6 @@
 const glCv = document.getElementById("webglCanvas");
-glCv.width = 384;
-glCv.height = 216;
+glCv.width = 384*1.6;
+glCv.height = 216*1.6;
 
 const cv2d = document.getElementById("canvas2d");
 cv2d.width = 854*1.5;
@@ -45,11 +45,22 @@ const world = new World(gl);
 
 
 let lastUpdateTime = null;
+const n = 120;
+const lastNDt = [];
 
 function loop(){
     const now = Date.now();
     const dtInMilliseconds = lastUpdateTime == null ? 1000/60 : now-lastUpdateTime;
+    lastUpdateTime = now;
     const dtInSeconds = dtInMilliseconds/1000;
+
+    lastNDt.push(dtInMilliseconds);
+    if(lastNDt.length > n){
+        lastNDt.splice(0, 1);
+    }
+    const sum = lastNDt.reduce((accumulator, a)=>{return accumulator+a});
+    ctx.clearRect(0, 0, cv2d.width, cv2d.height);
+    ctx.fillText("fps: " + Math.round(1000/(sum/n)), 10, 20);
 
     world.draw(gl);
     world.update(dtInSeconds);
