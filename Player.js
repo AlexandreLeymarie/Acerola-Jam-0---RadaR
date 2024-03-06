@@ -22,7 +22,7 @@ function Player(pos) {
     this.radius = 1;
 
     this.vel = vec(0);
-    this.spd = 4;
+    this.spd = 5;
 }
 
 Player.prototype.update = function (dt) {
@@ -36,6 +36,6 @@ Player.prototype.update = function (dt) {
     let notSubmergedArea = Math.max(0, this.pos.y);
     this.vel.y -= 60*notSubmergedArea*this.radius*dt;
 
-    this.vel = lerpDt(this.vel, targetVel, 0.99, 1, dt);
+    this.vel = lerpDt(this.vel, targetVel, 0.96, 1, dt);
     this.pos = this.pos.add(this.vel.mul(dt));
 }

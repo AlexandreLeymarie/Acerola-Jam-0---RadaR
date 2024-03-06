@@ -12,16 +12,33 @@
 <body>
 
     <style>
+        html,
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background-color: black;
+        }
+
         #webglCanvas {
-            width: 854px;
-            height: 480px;
             image-rendering: pixelated;
             image-rendering: crisp-edges;
+            margin: none;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #canvas2d {
+            margin: none;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
         }
     </style>
 
-    <canvas id="webglCanvas" style="border: 2px solid;"></canvas>
-    <canvas id="2dCanvas" style="border: 2px solid;"></canvas>
+    <canvas id="webglCanvas"></canvas>
+    <canvas id="canvas2d"></canvas>
 
 
     <script src="Vector.js"></script>

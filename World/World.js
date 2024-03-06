@@ -1,6 +1,6 @@
 
 function World(gl) {
-    this.cam = { pos: vec(0), zoom: 0.1 };
+    this.cam = { pos: vec(0), zoom: 0.08 };
     this.time = 0;
 
     this.player = new Player(vec(0));
