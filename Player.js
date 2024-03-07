@@ -25,9 +25,24 @@ function Player(pos) {
     this.spd = 5;
 
     this.lookingAtRadar = false;
+    this.radarKey = false;
+    this.lastRadarKey = false;
 }
 
 Player.prototype.update = function (dt) {
+    this.updateRadarOnKeyPress();
+    this.movement(dt);
+}
+
+Player.prototype.updateRadarOnKeyPress = function(){
+    this.radarKey = KEYLIST["KeyR"];
+    if(this.radarKey && !this.lastRadarKey){
+        this.lookingAtRadar = !this.lookingAtRadar;
+    }
+    this.lastRadarKey = this.radarKey;
+}
+
+Player.prototype.movement = function (dt) {
     const keyDir = vec(
         (KEYLIST["ArrowRight"] ? 1 : 0) - (KEYLIST["ArrowLeft"] ? 1 : 0),
         (KEYLIST["ArrowUp"] ? 1 : 0) - (KEYLIST["ArrowDown"] ? 1 : 0)

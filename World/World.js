@@ -5,11 +5,20 @@ function World(gl) {
 
     this.player = new Player(vec(0));
 
+    this.lookingAtRadarEase = {
+        active: false,
+        camPosStart: null,
+        camPosEnd: null,
+        camZoomStart: null,
+        camZoomEnd: null,
+        time: 0,
+        duration: 0.5
+    }
 
     this.initGl(gl);
 }
 
-World.prototype.initGl = function(gl) {
+World.prototype.initGl = function (gl) {
     this.program = createProgramFromShaderStrings(gl, basicVertexShaderString, worldFragmentShaderString);
 
     this.positionAttributeLocation = gl.getAttribLocation(this.program, "a_position");
@@ -32,7 +41,7 @@ World.prototype.initGl = function(gl) {
     gl.uniform2f(this.resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
 }
 
-World.prototype.initUniforms = function(gl){
+World.prototype.initUniforms = function (gl) {
     this.resolutionUniformLocation = gl.getUniformLocation(this.program, "u_resolution");
     this.timeUniformLocation = gl.getUniformLocation(this.program, "u_time");
     this.camPosUniformLocation = gl.getUniformLocation(this.program, "u_camPos");
@@ -43,17 +52,62 @@ World.prototype.initUniforms = function(gl){
     this.playerVelUniformLocation = gl.getUniformLocation(this.program, "u_playerVel");
 }
 
+function clamp(x, a, b){
+    return Math.min(Math.max(x, a), b);
+}
 
-World.prototype.update = function(dt){
+function smoothstep(edge0, edge1, x){
+	const t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+    return t * t * (3.0 - 2.0 * t);
+}
 
-    //this.cam.pos.x = Math.cos(this.time)*8;
-    //this.cam.pos.y = Math.sin(this.time)*8;
+World.prototype.update = function (dt) {
+
+
+    this.lastLookAtRadar = this.player.lookingAtRadar;
     this.player.update(dt);
-    this.cam.pos = lerpDt(this.cam.pos, this.player.pos, 0.95, 1, dt);
-    
+    this.manageLookingAtRadarEase(dt);
+
+
+
     this.time += dt;
 }
 
+World.prototype.manageLookingAtRadarEase = function(dt){
+    if(this.player.lookingAtRadar != this.lastLookAtRadar){
+        this.lookingAtRadarEase.active = true;
+        this.lookingAtRadarEase.time = 0;
+        if(this.player.lookingAtRadar){
+            this.lookingAtRadarEase.camPosStart= this.cam.pos.copy();
+            this.lookingAtRadarEase.camPosEnd= this.player.pos.add(vec(0.25, -0.1));
+            this.lookingAtRadarEase.camZoomStart = this.cam.zoom;
+            this.lookingAtRadarEase.camZoomEnd = 1;
+        } else {
+            this.lookingAtRadarEase.camPosStart= this.cam.pos.copy();
+            this.lookingAtRadarEase.camPosEnd= this.player.pos.copy();
+            this.lookingAtRadarEase.camZoomStart = this.cam.zoom;
+            this.lookingAtRadarEase.camZoomEnd = 0.08;
+        }
+    }
+    if(this.lookingAtRadarEase.active){
+        this.lookingAtRadarEase.time += dt/this.lookingAtRadarEase.duration;
+        if(this.lookingAtRadarEase.time >= 1){
+            this.lookingAtRadarEase.time = 1;
+            this.lookingAtRadarEase.active = false;
+        }
+        let st = smoothstep(0, 1, this.lookingAtRadarEase.time);
+        this.cam.pos = this.lookingAtRadarEase.camPosStart.add(this.player.pos.add(vec(0.25, -0.1)).sub(this.lookingAtRadarEase.camPosStart).mul(st));
+        this.cam.zoom = this.lookingAtRadarEase.camZoomStart+(this.lookingAtRadarEase.camZoomEnd-this.lookingAtRadarEase.camZoomStart)*st;
+    } else {
+        if(!this.player.lookingAtRadar){
+            this.cam.pos = lerpDt(this.cam.pos, this.player.pos, 0.95, 1, dt);
+            this.cam.zoom = 0.08;
+        } else {
+            this.cam.pos = this.player.pos.add(vec(0.25, -0.1));
+            this.cam.zoom = 1;
+        }
+    }
+}
 
 
 World.prototype.draw = function (gl) {
@@ -67,14 +121,14 @@ World.prototype.draw = function (gl) {
 
 
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    
+
     gl.clearColor(0, 1, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
-    
+
     gl.useProgram(this.program);
     gl.enableVertexAttribArray(this.positionAttributeLocation);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
     gl.vertexAttribPointer(this.positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
-    gl.drawArrays(gl.TRIANGLES, 0, this.positions.length/2);
+    gl.drawArrays(gl.TRIANGLES, 0, this.positions.length / 2);
 }
 
