@@ -79,9 +79,9 @@ World.prototype.manageLookingAtRadarEase = function(dt){
         this.lookingAtRadarEase.time = 0;
         if(this.player.lookingAtRadar){
             this.lookingAtRadarEase.camPosStart= this.cam.pos.copy();
-            this.lookingAtRadarEase.camPosEnd= this.player.pos.add(vec(0.25, -0.1));
+            this.lookingAtRadarEase.camPosEnd= this.player.pos.add(vec(0.2, -0.1));
             this.lookingAtRadarEase.camZoomStart = this.cam.zoom;
-            this.lookingAtRadarEase.camZoomEnd = 1;
+            this.lookingAtRadarEase.camZoomEnd = 2;
         } else {
             this.lookingAtRadarEase.camPosStart= this.cam.pos.copy();
             this.lookingAtRadarEase.camPosEnd= this.player.pos.copy();
@@ -96,15 +96,15 @@ World.prototype.manageLookingAtRadarEase = function(dt){
             this.lookingAtRadarEase.active = false;
         }
         let st = smoothstep(0, 1, this.lookingAtRadarEase.time);
-        this.cam.pos = this.lookingAtRadarEase.camPosStart.add(this.player.pos.add(vec(0.25, -0.1)).sub(this.lookingAtRadarEase.camPosStart).mul(st));
+        this.cam.pos = this.lookingAtRadarEase.camPosStart.add(this.player.pos.add(vec(0.2, -0.1)).sub(this.lookingAtRadarEase.camPosStart).mul(st));
         this.cam.zoom = this.lookingAtRadarEase.camZoomStart+(this.lookingAtRadarEase.camZoomEnd-this.lookingAtRadarEase.camZoomStart)*st;
     } else {
         if(!this.player.lookingAtRadar){
             this.cam.pos = lerpDt(this.cam.pos, this.player.pos, 0.95, 1, dt);
             this.cam.zoom = 0.08;
         } else {
-            this.cam.pos = this.player.pos.add(vec(0.25, -0.1));
-            this.cam.zoom = 1;
+            this.cam.pos = this.player.pos.add(vec(0.2, -0.1));
+            this.cam.zoom = 2;
         }
     }
 }
