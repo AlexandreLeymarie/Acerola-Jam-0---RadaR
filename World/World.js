@@ -1,6 +1,6 @@
 
 function World(gl) {
-    this.cam = { pos: vec(0), zoom: 0.08 };
+    this.cam = { pos: vec(0), zoom: 0.04 };
     this.time = 0;
 
     this.player = new Player(vec(0));
@@ -101,7 +101,7 @@ World.prototype.manageLookingAtRadarEase = function(dt){
     } else {
         if(!this.player.lookingAtRadar){
             this.cam.pos = lerpDt(this.cam.pos, this.player.pos, 0.95, 1, dt);
-            this.cam.zoom = 0.08;
+            this.cam.zoom = 0.04;
         } else {
             this.cam.pos = this.player.pos.add(vec(0.2, -0.1));
             this.cam.zoom = 2;

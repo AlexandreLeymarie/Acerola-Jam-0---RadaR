@@ -6,6 +6,7 @@ const worldFragmentShaderString = /*glsl*/ `
     #define PLAYER vec3(117, 85, 74)/255.
     #define PLAYER_LIGHT vec3(1, 1, 0.8)
     #define RADAR_GREEN  vec3(139,246,136)/255.
+    #define GROUND 0.2*vec3(65, 71, 82)/255.
 
     uniform vec2 u_resolution;
 
@@ -17,10 +18,22 @@ const worldFragmentShaderString = /*glsl*/ `
     uniform float u_playerRadius;
     uniform vec2 u_playerVel;
 
-    float rand(float n){return fract(sin(n*37.382) * 43758.5453123);}
+    float rand(float n){return fract(sin(n*37.382) * 438.5453123);}
 
     float rand(vec2 p){
-        return fract(1290.326*sin(p.x*24.7865+p.y*8.5703));
+        return fract(190.326*sin(p.x*24.7865+p.y*88.5703));
+    }
+
+    float noise(float p){
+        float fl = floor(p);
+        float fc = fract(p);
+        return mix(rand(fl), rand(fl + 1.0), fc);
+    }
+    
+    float noise(vec2 n) {
+        const vec2 d = vec2(0.0, 1.0);
+      vec2 b = floor(n), f = smoothstep(vec2(0.0), vec2(1.0), fract(n));
+        return mix(mix(rand(b), rand(b + d.yx), f.x), mix(rand(b + d.xy), rand(b + d.yy), f.x), f.y);
     }
 
     float sdBox( in vec2 p, in vec2 b )
@@ -50,6 +63,15 @@ const worldFragmentShaderString = /*glsl*/ `
     float sdPlayer(vec2 p){
         return length(p-u_playerPos) - u_playerRadius;
     }
+
+    float sdGround(vec2 p){
+        return p.y+40.+noise(p*0.5)*0.7+noise(p*1.5)*0.5;
+    }
+    vec2 gradient(vec2 p){
+        vec2 h = vec2(0.05, 0.);
+        return normalize(vec2(sdGround(p+h.xy)-sdGround(p-h.xy), sdGround(p+h.yx)-sdGround(p-h.yx)));
+    }
+    
 
     void main(){
         vec2 p = coordToWorldPos(gl_FragCoord.xy);
@@ -96,14 +118,21 @@ const worldFragmentShaderString = /*glsl*/ `
 
                 if(sdBox(playerP-vec2(0.2, -0.1), vec2(0.15)) < 0.){
                     col = vec3(0.05);
-                    vec2 radarP = (playerP-vec2(0.2, -0.1))*100.+u_playerPos;
+                    vec2 radarP = (playerP-vec2(0.2, -0.1))*150.+u_playerPos;
                     vec2 fRadarP = fract(radarP*0.4);
                     if(fRadarP.x < 0.05 || fRadarP.y < 0.05 || fRadarP.x > 1.-0.05 || fRadarP.y > 1.-0.05){
                         col = mix(col, RADAR_GREEN, 0.5);
                     }
+                    //if(floor(fRadarP))
 
                     float s = sin(radarP.x*2.)*0.5;
                     if(radarP.y < s && radarP.y+0.2 >= s){
+                        col = RADAR_GREEN;
+                    }
+                    if(length(radarP-u_playerPos) <= u_playerRadius){
+                        col = RADAR_GREEN;
+                    }
+                    if(sdGround(radarP) <= 0.){
                         col = RADAR_GREEN;
                     }
                 }
@@ -130,14 +159,34 @@ const worldFragmentShaderString = /*glsl*/ `
             }*/
             //if(isInWater) col = mix(PLAYER_LIGHT, col, 0.5+0.5*smoothstep(0., 8., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5));
         }
+
+        bool isInGround = sdGround(p) <= 0.;
+        if(isInGround){
+            col = GROUND*(1.+noise(p*5.)*0.5);
+            if(sdGround(pLeft) > 0. || sdGround(pRight) > 0. || sdGround(pDown) > 0. || sdGround(pUp) > 0.){
+                vec2 lightDir = normalize(p-u_playerPos);
+                vec2 normal = gradient(p);
+				float amountOfLight = clamp(dot(-lightDir, normal), -1., 1.);
+				if(amountOfLight < 0.){
+					col = mix(waterCol, col, amountOfLight+1.);
+				} else {
+                    float lightColValue = 1.-smoothstep(0., 12., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5);
+					col = mix(col, PLAYER_LIGHT, amountOfLight*lightColValue*0.6);
+				}
+                //col = vec3(1);
+            }
+        }
         
 
         if(isInWater){
-            if(isInWater) col = mix(PLAYER_LIGHT, col, 0.5+0.5*smoothstep(0., 8., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5));
-
+            if(isInWater) col = mix(PLAYER_LIGHT, col, 0.6+0.4*smoothstep(0., 12., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5));
             //float lightAmount = 1.-smoothstep(0., 8., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5);
             //col += 0.5*PLAYER_LIGHT*(1.-smoothstep(0., 8., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5));
         }
+
+
+
+
         gl_FragColor = vec4(col, 1);
     }
 `;
