@@ -47,6 +47,22 @@ Vector.prototype.reflection = function(n){
     return this.add(n.mult(-2*this.dot(n)));
 }
 
+Vector.prototype.xx = function(){
+    return new Vector(this.x, this.x);
+}
+
+Vector.prototype.yy = function(){
+    return new Vector(this.y, this.y);
+}
+
+Vector.prototype.xy = function(){
+    return new Vector(this.x, this.y);
+}
+
+Vector.prototype.yx = function(){
+    return new Vector(this.y, this.x);
+}
+
 function vec(x, y){
     if(x === undefined) return new Vector(0, 0);
     return new Vector(x, y !== undefined ? y : x);

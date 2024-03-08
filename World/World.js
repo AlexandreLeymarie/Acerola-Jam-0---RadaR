@@ -52,14 +52,6 @@ World.prototype.initUniforms = function (gl) {
     this.playerVelUniformLocation = gl.getUniformLocation(this.program, "u_playerVel");
 }
 
-function clamp(x, a, b){
-    return Math.min(Math.max(x, a), b);
-}
-
-function smoothstep(edge0, edge1, x){
-	const t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
-    return t * t * (3.0 - 2.0 * t);
-}
 
 World.prototype.update = function (dt) {
 

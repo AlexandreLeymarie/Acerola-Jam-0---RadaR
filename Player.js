@@ -43,6 +43,8 @@ Player.prototype.updateRadarOnKeyPress = function(){
 }
 
 Player.prototype.movement = function (dt) {
+    this.lastPos = this.pos.copy();
+
     const keyDir = vec(
         (KEYLIST["ArrowRight"] ? 1 : 0) - (KEYLIST["ArrowLeft"] ? 1 : 0),
         (KEYLIST["ArrowUp"] ? 1 : 0) - (KEYLIST["ArrowDown"] ? 1 : 0)
@@ -55,4 +57,16 @@ Player.prototype.movement = function (dt) {
 
     this.vel = lerpDt(this.vel, targetVel, 0.96, 1, dt);
     this.pos = this.pos.add(this.vel.mul(dt));
+
+    let d;
+    for(let i = 0; i < 10; i++){
+        let normal = CollisionMap.gradient(this.pos);
+        let surfaceTowardsSdf = this.pos.sub(normal.mul(this.radius));
+        d = CollisionMap.sdf(surfaceTowardsSdf);
+        if(d < 0){
+            this.pos = this.pos.add(normal.mul(-d*.25));
+        }
+    }
+
+    this.vel = this.pos.sub(this.lastPos).mul(1/dt);
 }

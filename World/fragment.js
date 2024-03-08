@@ -18,11 +18,19 @@ const worldFragmentShaderString = /*glsl*/ `
     uniform float u_playerRadius;
     uniform vec2 u_playerVel;
 
-    float rand(float n){return fract(sin(n*37.382) * 438.5453123);}
+    float rand(float n){return fract(sin(n*37.382) * 43.523);}
 
-    float rand(vec2 p){
-        return fract(190.326*sin(p.x*24.7865+p.y*88.5703));
+    /*float rand(vec2 p){
+        return fract(19.326*sin(p.x*24.785+p.y*88.573));
+    }*/
+
+    float rand(vec2 p)
+    {
+        vec3 p3  = fract(vec3(p.xyx) * .1031);
+        p3 += dot(p3, p3.yzx + 33.33);
+        return fract((p3.x + p3.y) * p3.z);
     }
+
 
     float noise(float p){
         float fl = floor(p);
@@ -80,7 +88,7 @@ const worldFragmentShaderString = /*glsl*/ `
         vec2 pRight = coordToWorldPos(gl_FragCoord.xy+vec2(1, 0));
         vec2 pLeft = coordToWorldPos(gl_FragCoord.xy+vec2(-1, 0));
 
-        vec3 col = mix(SKY*0.7, SKY*1.1, clamp(p.y*0.15, 0., 1.));
+        vec3 col = mix(SKY*0.7, SKY*1.1, smoothstep(0., 15., p.y));
 
         float waterLevelValue = waterLevel(p.x);
         vec3 waterCol = col;
