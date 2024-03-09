@@ -5,8 +5,8 @@ function Fishes(gl, world){
     this.world = world;
 
     this.fishes = [];
-    for(let i = 0; i < 1000; i++){
-        this.fishes.push(new Fish(vec(Math.floor(i/10)*3, -(i%10)*3)));
+    for(let i = 0; i < 500; i++){
+        this.fishes.push(new Fish(vec((i%20), -Math.floor(i/20)), this.world));
     }
 
     this.initGl(gl);
@@ -42,6 +42,13 @@ Fishes.prototype.initUniforms = function (gl) {
     this.camZoomUniformLocation = gl.getUniformLocation(this.program, "u_camZoom");
     this.positionUniformLocation = gl.getUniformLocation(this.program, "u_position");
     this.scaleUniformLocation = gl.getUniformLocation(this.program, "u_scale");
+    this.fishRadiusUniformLocation = gl.getUniformLocation(this.program, "u_fishRadius");
+}
+
+Fishes.prototype.update = function(dt){
+    for(let fish of this.fishes){
+        fish.update(dt, this.fishes);
+    }
 }
 
 Fishes.prototype.draw = function (gl) {
@@ -51,14 +58,15 @@ Fishes.prototype.draw = function (gl) {
     gl.uniform2f(this.camPosUniformLocation, this.world.cam.pos.x, this.world.cam.pos.y);
     gl.uniform1f(this.camZoomUniformLocation, this.world.cam.zoom);
 
+    gl.enableVertexAttribArray(this.positionAttributeLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+    gl.vertexAttribPointer(this.positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+
     for(let fish of this.fishes){
         gl.uniform2f(this.positionUniformLocation, fish.pos.x, fish.pos.y);
         gl.uniform2f(this.scaleUniformLocation, fish.scale.x, fish.scale.y);
-    
-    
-        gl.enableVertexAttribArray(this.positionAttributeLocation);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
-        gl.vertexAttribPointer(this.positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+        gl.uniform1f(this.fishRadiusUniformLocation, fish.radius);
+
         gl.drawArrays(gl.TRIANGLES, 0, this.positions.length / 2);
     }
 }

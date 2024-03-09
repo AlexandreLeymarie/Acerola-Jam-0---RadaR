@@ -60,6 +60,7 @@ World.prototype.update = function (dt) {
 
     this.lastLookAtRadar = this.player.lookingAtRadar;
     this.player.update(dt);
+    this.fishes.update(dt);
     this.manageLookingAtRadarEase(dt);
 
 
