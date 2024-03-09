@@ -5,7 +5,7 @@ function Fishes(gl, world){
     this.world = world;
 
     this.fishes = [];
-    for(let i = 0; i < 500; i++){
+    for(let i = 0; i < 600; i++){
         this.fishes.push(new Fish(vec((i%20), -Math.floor(i/20)), this.world));
     }
 
@@ -43,6 +43,7 @@ Fishes.prototype.initUniforms = function (gl) {
     this.positionUniformLocation = gl.getUniformLocation(this.program, "u_position");
     this.scaleUniformLocation = gl.getUniformLocation(this.program, "u_scale");
     this.fishRadiusUniformLocation = gl.getUniformLocation(this.program, "u_fishRadius");
+    this.fishVelUniformLocation = gl.getUniformLocation(this.program, "u_fishVel");
 }
 
 Fishes.prototype.update = function(dt){
@@ -66,6 +67,7 @@ Fishes.prototype.draw = function (gl) {
         gl.uniform2f(this.positionUniformLocation, fish.pos.x, fish.pos.y);
         gl.uniform2f(this.scaleUniformLocation, fish.scale.x, fish.scale.y);
         gl.uniform1f(this.fishRadiusUniformLocation, fish.radius);
+        gl.uniform2f(this.fishVelUniformLocation, fish.vel.x, fish.vel.y);
 
         gl.drawArrays(gl.TRIANGLES, 0, this.positions.length / 2);
     }

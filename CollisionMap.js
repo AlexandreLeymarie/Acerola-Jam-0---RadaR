@@ -2,7 +2,7 @@
 
 const CollisionMap = {
     sdf: function (p) {
-        return p.y + 40. + noise(p.mul(0.5)) * 0.7 + noise(p.mul(1.5)) * 0.5;
+        return p.y + 80. + noise(p.mul(0.5)) * 0.7 + noise(p.mul(1.5)) * 0.5;
     },
     gradient: function (p) {
         const h = vec(0.05, 0.);

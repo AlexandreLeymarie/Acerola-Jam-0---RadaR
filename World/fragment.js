@@ -98,7 +98,7 @@ const worldFragmentShaderString = /*glsl*/ `
     }
 
     float sdGround(vec2 p){
-        return p.y+40.+noise(p*0.5)*0.7+noise(p*1.5)*0.5;
+        return p.y+80.+noise(p*0.5)*0.7+noise(p*1.5)*0.5;
     }
     vec2 gradient(vec2 p){
         vec2 h = vec2(0.05, 0.);

@@ -9,7 +9,7 @@ function Fish(pos, world){
 }
 
 Fish.prototype.computeScale = function(){
-    this.scale = vec(this.radius*2);
+    this.scale = vec(this.radius*4);
 }
 
 Fish.prototype.update = function(dt, fishes){
@@ -41,7 +41,7 @@ Fish.prototype.movement = function (dt, fishes) {
 
         //console.log(avoidVector);
     let targetVel = this.world.player.pos.sub(this.pos).normalize().add(avoidVector.mul(4)).normalize().mul(this.spd);
-    
+
 
 
     let notSubmergedArea = Math.max(0, this.pos.y);

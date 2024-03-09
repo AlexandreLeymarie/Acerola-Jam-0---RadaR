@@ -9,6 +9,7 @@ const fishFragmentShaderString = /*glsl*/ `
 
     uniform vec2 u_position;
     uniform float u_fishRadius;
+    uniform vec2 u_fishVel;
 
     vec2 coordToWorldPos(vec2 c){
         vec2 p = (c-.5*u_resolution.xy)/u_resolution.y;
@@ -49,6 +50,15 @@ const fishFragmentShaderString = /*glsl*/ `
         if(length(p-u_position) < u_fishRadius){
             alpha = .5;
             col = vec3(.1, .1, .3);
+            if(length(p-u_position-normalize(u_fishVel)*u_fishRadius*.6) < u_fishRadius*.3){
+                //col = vec3(.8, .8, 1)*.7;
+                col *= 4.;
+            }
+        }
+
+        if(length(p-u_position+normalize(u_fishVel)*u_fishRadius) < u_fishRadius*.7){
+            alpha = .5;
+            col = vec3(.1, .1, .3)*.5;
         }
 
         gl_FragColor = vec4(col, alpha);
