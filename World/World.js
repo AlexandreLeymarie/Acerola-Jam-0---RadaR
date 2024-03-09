@@ -15,6 +15,8 @@ function World(gl) {
         duration: 0.5
     }
 
+    this.fishes = new Fishes(gl, this);
+
     this.initGl(gl);
 }
 
@@ -103,6 +105,8 @@ World.prototype.manageLookingAtRadarEase = function(dt){
 
 
 World.prototype.draw = function (gl) {
+    gl.useProgram(this.program);
+
     gl.uniform1f(this.timeUniformLocation, this.time);
     gl.uniform2f(this.camPosUniformLocation, this.cam.pos.x, this.cam.pos.y);
     gl.uniform1f(this.camZoomUniformLocation, this.cam.zoom);
@@ -117,10 +121,11 @@ World.prototype.draw = function (gl) {
     gl.clearColor(0, 1, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    gl.useProgram(this.program);
     gl.enableVertexAttribArray(this.positionAttributeLocation);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
     gl.vertexAttribPointer(this.positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLES, 0, this.positions.length / 2);
+
+    this.fishes.draw(gl);
 }
 

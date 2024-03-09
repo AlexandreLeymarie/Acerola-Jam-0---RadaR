@@ -152,8 +152,8 @@ const worldFragmentShaderString = /*glsl*/ `
                 if(sdBox(playerP-vec2(0.2, -0.1), vec2(0.15)) < 0.){
                 //if(length(playerP-vec2(0.2, -0.1)) < 0.15){
                     col = vec3(0.05);
-                    vec2 radarP = (playerP-vec2(0.2, -0.1))*150.+u_playerPos;
-                    vec2 fRadarP = fract(radarP*0.4);
+                    vec2 radarP = (playerP-vec2(0.2, -0.1))*200.+u_playerPos;
+                    vec2 fRadarP = fract(radarP*0.3);
                     if(fRadarP.x < 0.05 || fRadarP.y < 0.05 || fRadarP.x > 1.-0.05 || fRadarP.y > 1.-0.05){
                         col = mix(col, RADAR_GREEN, 0.5);
                     }
