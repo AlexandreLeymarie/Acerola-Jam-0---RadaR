@@ -10,5 +10,3 @@ const CollisionMap = {
     }
 }
 
-
-console.log(CollisionMap.gradient(vec(1, 1)));

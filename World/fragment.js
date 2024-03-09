@@ -1,6 +1,8 @@
 const worldFragmentShaderString = /*glsl*/ `
     precision mediump float;
 
+    #define PI 3.14159265358979
+
     #define SKY 1.6*vec3(135,206,235)/255.
     #define WATER 0.5*vec3(57, 89, 204)/255.
     #define PLAYER vec3(117, 85, 74)/255.
@@ -24,6 +26,28 @@ const worldFragmentShaderString = /*glsl*/ `
         return fract(19.326*sin(p.x*24.785+p.y*88.573));
     }*/
 
+    // from https://www.shadertoy.com/view/4djSRW
+    // Hash without Sine
+    // MIT License...
+    /* Copyright (c)2014 David Hoskins.
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.*/
     float rand(vec2 p)
     {
         vec3 p3  = fract(vec3(p.xyx) * .1031);
@@ -44,6 +68,7 @@ const worldFragmentShaderString = /*glsl*/ `
         return mix(mix(rand(b), rand(b + d.yx), f.x), mix(rand(b + d.xy), rand(b + d.yy), f.x), f.y);
     }
 
+    // from Inigo Quilez
     float sdBox( in vec2 p, in vec2 b )
     {
         vec2 d = abs(p)-b;
@@ -88,7 +113,7 @@ const worldFragmentShaderString = /*glsl*/ `
         vec2 pRight = coordToWorldPos(gl_FragCoord.xy+vec2(1, 0));
         vec2 pLeft = coordToWorldPos(gl_FragCoord.xy+vec2(-1, 0));
 
-        vec3 col = mix(SKY*0.7, SKY*1.1, smoothstep(0., 15., p.y));
+        vec3 col = mix(SKY*0.7, SKY*1.1, smoothstep(0., 20., p.y));
 
         float waterLevelValue = waterLevel(p.x);
         vec3 waterCol = col;
@@ -125,6 +150,7 @@ const worldFragmentShaderString = /*glsl*/ `
                 //col = mix(vec3(1, 1, 0.7), col, 1.-0.5*smoothstep(0.1, 1., length(playerP)));
 
                 if(sdBox(playerP-vec2(0.2, -0.1), vec2(0.15)) < 0.){
+                //if(length(playerP-vec2(0.2, -0.1)) < 0.15){
                     col = vec3(0.05);
                     vec2 radarP = (playerP-vec2(0.2, -0.1))*150.+u_playerPos;
                     vec2 fRadarP = fract(radarP*0.4);
@@ -143,6 +169,9 @@ const worldFragmentShaderString = /*glsl*/ `
                     if(sdGround(radarP) <= 0.){
                         col = RADAR_GREEN;
                     }
+                    //float a = u_time;
+                    //float a = atan(radarP.y, radarP.x);
+                    //col = mix(col, vec3(0.05), smoothstep(mod(u_time, PI*2.)-PI, mod(u_time-1., PI*2.)-PI, a));
                 }
 
                 col = mix(col, vec3(0.9, 0.9, 1), 0.3);
@@ -187,7 +216,15 @@ const worldFragmentShaderString = /*glsl*/ `
         
 
         if(isInWater){
-            if(isInWater) col = mix(PLAYER_LIGHT, col, 0.6+0.4*smoothstep(0., 12., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5));
+            float la = smoothstep(0., 12., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5);
+            col = mix(PLAYER_LIGHT, col, 0.6+0.4*la);
+            vec2 fp = fract(p*.5+vec2(noise(u_time*.3), noise(u_time*.3+174.)));
+            vec2 flp = floor(p*.5);
+            float offsetx = rand(flp);
+            float offsety = fract(offsetx*82.011);
+            vec2 offset = (vec2(offsetx, offsety)-.5)*.8;
+
+            if(!isInGround) col = mix(col, vec3(1), smoothstep(-20., -30., p.y)*.2*(1.-la)*(1.-smoothstep(.01, .025,  length(fp-.5+offset))));
             //float lightAmount = 1.-smoothstep(0., 8., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5);
             //col += 0.5*PLAYER_LIGHT*(1.-smoothstep(0., 8., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5));
         }

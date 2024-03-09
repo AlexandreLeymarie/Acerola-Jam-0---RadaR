@@ -50,7 +50,8 @@ const lastNDt = [];
 
 function loop(){
     const now = Date.now();
-    const dtInMilliseconds = lastUpdateTime == null ? 1000/60 : now-lastUpdateTime;
+    let dtInMilliseconds = lastUpdateTime == null ? 1000/60 : now-lastUpdateTime;
+    if(dtInMilliseconds > 200) dtInMilliseconds = 200;
     lastUpdateTime = now;
     const dtInSeconds = dtInMilliseconds/1000;
 
