@@ -218,11 +218,12 @@ const worldFragmentShaderString = /*glsl*/ `
         if(isInWater){
             float la = smoothstep(0., 12., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5);
             col = mix(PLAYER_LIGHT, col, 0.6+0.4*la);
-            vec2 fp = fract(p*.5+vec2(noise(u_time*.3), noise(u_time*.3+174.)));
-            vec2 flp = floor(p*.5);
+            vec2 pp = p*.5+vec2(noise(u_time*.3), noise(u_time*.3+174.));
+            vec2 fp = fract(pp);
+            vec2 flp = floor(pp);
             float offsetx = rand(flp);
             float offsety = fract(offsetx*82.011);
-            vec2 offset = (vec2(offsetx, offsety)-.5)*.8;
+            vec2 offset = (vec2(offsetx, offsety)-.5)*.9;
 
             if(!isInGround) col = mix(col, vec3(1), smoothstep(-20., -30., p.y)*.2*(1.-la)*(1.-smoothstep(.01, .025,  length(fp-.5+offset))));
             //float lightAmount = 1.-smoothstep(0., 8., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5);
