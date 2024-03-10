@@ -47,6 +47,12 @@ Vector.prototype.reflection = function(n){
     return this.add(n.mult(-2*this.dot(n)));
 }
 
+Vector.prototype.rotate = function(a){
+    const c = Math.cos(a);
+    const s = Math.sin(a);
+    return new Vector(this.x*c+this.y*s, -this.x*s+this.y*c);
+}
+
 Vector.prototype.xx = function(){
     return new Vector(this.x, this.x);
 }

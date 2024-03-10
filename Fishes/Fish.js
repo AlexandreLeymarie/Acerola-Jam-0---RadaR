@@ -33,22 +33,28 @@ Fish.prototype.movement = function (dt, fishes) {
 
         if(fish != this){
             let d = this.pos.sub(fish.pos);
-            if(d.length() < 10*this.radius){
+            if(/*d.normalize().dot(this.vel.normalize()) > -.2 &&*/ d.length() < 10*this.radius){
                 avoidVector = avoidVector.add(d.normalize().mul(1/(d.length()+0.1)));
             }
         }
     }
 
         //console.log(avoidVector);
-    let targetVel = this.world.player.pos.sub(this.pos).normalize().add(avoidVector.mul(4)).normalize().mul(this.spd);
+    let dp = this.world.player.pos.sub(this.pos);
+    let targetVel = dp.normalize().add(avoidVector.mul(4)).normalize().mul(this.spd);
 
 
 
     let notSubmergedArea = Math.max(0, this.pos.y);
     this.vel.y -= 60*notSubmergedArea*this.radius*dt;
 
-    this.vel = lerpDt(this.vel, targetVel, 0.8, 1, dt);
+    this.vel = lerpDt(this.vel, targetVel, 0.9, 1, dt);
     this.pos = this.pos.add(this.vel.mul(dt));
+
+    if(dp.length() < this.radius+this.world.player.radius){
+        this.pos = this.world.player.pos.sub(dp.normalize().mul(this.radius+this.world.player.radius));
+        this.world.player.vel = this.world.player.vel.add(dp.normalize().mul(this.world.player.spd*2));
+    }
 
     let d;
     for(let i = 0; i < 5; i++){
@@ -57,6 +63,8 @@ Fish.prototype.movement = function (dt, fishes) {
         d = CollisionMap.sdf(surfaceTowardsSdf);
         if(d < 0){
             this.pos = this.pos.add(normal.mul(-d*.5));
+        } else {
+            break;
         }
     }
 

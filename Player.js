@@ -52,10 +52,11 @@ Player.prototype.movement = function (dt) {
 
     const targetVel = keyDir.mul(this.spd);
 
-    let notSubmergedArea = Math.max(0, this.pos.y);
-    this.vel.y -= 60*notSubmergedArea*this.radius*dt;
 
-    this.vel = lerpDt(this.vel, targetVel, 0.96, 1, dt);
+    let notSubmergedArea = Math.max(0, this.pos.y);
+    this.vel.y -= 25*notSubmergedArea*this.radius*dt;
+
+    if(notSubmergedArea <= 0) this.vel = lerpDt(this.vel, targetVel, 0.96, 1, dt);
     this.pos = this.pos.add(this.vel.mul(dt));
 
     let d;

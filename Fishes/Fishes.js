@@ -5,7 +5,7 @@ function Fishes(gl, world){
     this.world = world;
 
     this.fishes = [];
-    for(let i = 0; i < 600; i++){
+    for(let i = 0; i < 1000; i++){
         this.fishes.push(new Fish(vec((i%20), -Math.floor(i/20)), this.world));
     }
 

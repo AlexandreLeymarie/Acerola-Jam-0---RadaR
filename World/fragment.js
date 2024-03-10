@@ -89,7 +89,7 @@ const worldFragmentShaderString = /*glsl*/ `
 
     float waterLevel(float x){
         x *= 0.8;
-        float y = sin(x*3.+u_time)*0.1+cos(x*2.-u_time)*0.15;
+        float y = sin(x*3.+u_time*2.)*0.1+cos(x*2.-u_time*2.)*0.15;
         return y*0.7;
     }
 
@@ -98,7 +98,8 @@ const worldFragmentShaderString = /*glsl*/ `
     }
 
     float sdGround(vec2 p){
-        return p.y+80.+noise(p*0.5)*0.7+noise(p*1.5)*0.5;
+        vec2 rp = rotate2d(-.4)*p;
+        return rp.y+80.+noise(p*0.5)*0.7+noise(p*1.5)*0.5;
     }
     vec2 gradient(vec2 p){
         vec2 h = vec2(0.05, 0.);

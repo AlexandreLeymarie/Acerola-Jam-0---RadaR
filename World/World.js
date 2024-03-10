@@ -1,10 +1,10 @@
 
 function World(gl) {
-    this.cam = { pos: vec(0), zoom: 0.04 };
     this.time = 0;
-
-    this.player = new Player(vec(0));
-
+    
+    this.player = new Player(vec(0, 0));
+    this.cam = { pos: this.player.pos.copy(), zoom: 0.04 };
+    
     this.lookingAtRadarEase = {
         active: false,
         camPosStart: null,
