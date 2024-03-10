@@ -9,6 +9,7 @@ const worldFragmentShaderString = /*glsl*/ `
     #define PLAYER_LIGHT vec3(1, 1, 0.8)
     #define RADAR_GREEN  vec3(139,246,136)/255.
     #define GROUND 0.2*vec3(65, 71, 82)/255.
+    #define BROWN vec3(82, 55, 37)/255.
 
     uniform vec2 u_resolution;
 
@@ -141,26 +142,53 @@ const worldFragmentShaderString = /*glsl*/ `
 
 
             if(abs(playerP.y) < 0.35){// && length(playerP) < 0.9){// && abs(playerP.x) > 0.07){
-                col = mix(PLAYER_LIGHT, waterCol, .2);
+                col = mix(PLAYER_LIGHT, waterCol, .3+(smoothstep(0., 1., u_camZoom))*.5);
+
+
+                float floorL = length(vec2(playerP.x, (playerP.y+.35)*4.));
+                if(floorL < .99){
+                    col = BROWN*.7;
+                    if(fract(playerP.x*3./playerP.y) < .5){
+                        col *= .8;
+                    }
+                    if(floorL > .9){
+                        col = vec3(.3);
+                    }
+                    col /= (playerP.y*1.5+1.);
+                    col *= 1.-length(vec2(playerP.x, (playerP.y+.20)*4.));
+                }
 
                 /*if(length(playerP) < 0.1){
                     col = vec3(1);
                 }*/
+
                 float lp = length(playerP);
-                col = mix(PLAYER_LIGHT, col, smoothstep(0.05, 0.2, lp));
+                if(lp >= .03 && u_camZoom > .5 && abs(playerP.x) < .001 && playerP.y > 0.){
+                    col = vec3(.5);
+                }
+
+                if(lp < .03) col = mix(col, vec3(1), .5);
+                col = mix(PLAYER_LIGHT, col, smoothstep(0.05, 0.2, lp)*.6+.4);
+                col = mix(vec3(1), col, smoothstep(0.01, 0.15, lp)*.6+.4);
                 //col = mix(vec3(1, 1, 0.7), col, 1.-0.5*smoothstep(0.1, 1., length(playerP)));
 
                 //if(sdBox(playerP-vec2(0.2, -0.1), vec2(0.15)) < 0.){
-                if(length(playerP-vec2(0.2, -0.1)) < 0.18){
+                if(abs(playerP.x-0.2) < .018 && playerP.y < 0. && playerP.y > -.4){
+                    col = vec3(.12);
+                    if(abs(playerP.x-0.2) > .015) col *= .7;
+                }
+
+                float dr = length(playerP-vec2(0.2, -0.1))*1.5;
+                if(dr < 0.181){
                     col = vec3(0.15);
                     /*if(length((pUp-u_playerPos)/u_playerRadius-vec2(0.2, -0.1)) < 0.15 || length((pLeft-u_playerPos)/u_playerRadius-vec2(0.2, -0.1)) < 0.15 || length((pDown-u_playerPos)/u_playerRadius-vec2(0.2, -0.1)) < 0.15 || length((pRight-u_playerPos)/u_playerRadius-vec2(0.2, -0.1)) < 0.15){
                         col = vec3(0);
                     }*/
-                    if(length(playerP-vec2(0.2, -0.1)) < 0.16){
+                    if(dr < 0.16 || dr > 0.177){
                         col = vec3(0);
                     }
                 }
-                if(length(playerP-vec2(0.2, -0.1)) < 0.15){
+                if(dr < 0.15){
                     col = vec3(0.05);
                     vec2 radarP = (playerP-vec2(0.2, -0.1))*300.+u_playerPos;
                     vec2 fRadarP = fract(radarP*0.2);
@@ -228,7 +256,8 @@ const worldFragmentShaderString = /*glsl*/ `
 
         if(isInWater){
             float la = smoothstep(0., 12., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5);
-            col = mix(PLAYER_LIGHT, col, 0.6+0.4*la);
+            float sz = smoothstep(0., 1., u_camZoom);
+            col = mix(PLAYER_LIGHT, col, (1.-sz)*(0.6+0.4*la)+sz);
             vec2 pp = p*.5+vec2(noise(u_time*.3), noise(u_time*.3+174.));
             vec2 fp = fract(pp);
             vec2 flp = floor(pp);
