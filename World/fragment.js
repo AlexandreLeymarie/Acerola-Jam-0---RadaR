@@ -5,7 +5,7 @@ const worldFragmentShaderString = /*glsl*/ `
 
     #define SKY 1.6*vec3(135,206,235)/255.
     #define WATER 0.5*vec3(57, 89, 204)/255.
-    #define PLAYER vec3(117, 85, 74)/255.
+    #define PLAYER vec3(89, 96, 110)/255.//vec3(117, 85, 74)/255.
     #define PLAYER_LIGHT vec3(1, 1, 0.8)
     #define RADAR_GREEN  vec3(139,246,136)/255.
     #define GROUND 0.2*vec3(65, 71, 82)/255.
@@ -150,24 +150,34 @@ const worldFragmentShaderString = /*glsl*/ `
                 col = mix(PLAYER_LIGHT, col, smoothstep(0.05, 0.2, lp));
                 //col = mix(vec3(1, 1, 0.7), col, 1.-0.5*smoothstep(0.1, 1., length(playerP)));
 
-                if(sdBox(playerP-vec2(0.2, -0.1), vec2(0.15)) < 0.){
-                //if(length(playerP-vec2(0.2, -0.1)) < 0.15){
+                //if(sdBox(playerP-vec2(0.2, -0.1), vec2(0.15)) < 0.){
+                if(length(playerP-vec2(0.2, -0.1)) < 0.18){
+                    col = vec3(0.15);
+                    /*if(length((pUp-u_playerPos)/u_playerRadius-vec2(0.2, -0.1)) < 0.15 || length((pLeft-u_playerPos)/u_playerRadius-vec2(0.2, -0.1)) < 0.15 || length((pDown-u_playerPos)/u_playerRadius-vec2(0.2, -0.1)) < 0.15 || length((pRight-u_playerPos)/u_playerRadius-vec2(0.2, -0.1)) < 0.15){
+                        col = vec3(0);
+                    }*/
+                    if(length(playerP-vec2(0.2, -0.1)) < 0.16){
+                        col = vec3(0);
+                    }
+                }
+                if(length(playerP-vec2(0.2, -0.1)) < 0.15){
                     col = vec3(0.05);
-                    vec2 radarP = (playerP-vec2(0.2, -0.1))*200.+u_playerPos;
-                    vec2 fRadarP = fract(radarP*0.3);
+                    vec2 radarP = (playerP-vec2(0.2, -0.1))*300.+u_playerPos;
+                    vec2 fRadarP = fract(radarP*0.2);
                     if(fRadarP.x < 0.05 || fRadarP.y < 0.05 || fRadarP.x > 1.-0.05 || fRadarP.y > 1.-0.05){
                         col = mix(col, RADAR_GREEN, 0.5);
                     }
                     //if(floor(fRadarP))
 
-                    float s = sin(radarP.x*2.)*0.5;
-                    if(radarP.y < s && radarP.y+0.2 >= s){
-                        col = RADAR_GREEN;
-                    }
-                    if(length(radarP-u_playerPos) <= u_playerRadius){
+                    float s = sin(radarP.x);
+                    if(radarP.y < s && radarP.y+0.5 >= s){
                         col = RADAR_GREEN;
                     }
                     if(sdGround(radarP) <= 0.){
+                        col = RADAR_GREEN;
+                    }
+                    col = mix(col, vec3(0.05), smoothstep(0., smoothstep(0., 1., mod(u_time*1.5, 4.))*1., abs((20.*length(playerP-vec2(0.2, -0.1)))-mod(u_time*1.5, 4.))));
+                    if(length(radarP-u_playerPos) <= u_playerRadius){
                         col = RADAR_GREEN;
                     }
                     //float a = u_time;
@@ -175,7 +185,7 @@ const worldFragmentShaderString = /*glsl*/ `
                     //col = mix(col, vec3(0.05), smoothstep(mod(u_time, PI*2.)-PI, mod(u_time-1., PI*2.)-PI, a));
                 }
 
-                col = mix(col, vec3(0.9, 0.9, 1), 0.3);
+                //col = mix(col, vec3(0.9, 0.9, 1), 0.3);
             }
 
 
@@ -187,7 +197,7 @@ const worldFragmentShaderString = /*glsl*/ `
 
 
             if(p.y <= waterLevelValue){
-                col = mix(col, waterCol, 0.5);
+                col = mix(col, waterCol, (1.-smoothstep(0., 1., u_camZoom))*.4);
             }
             //if(isInWater) col += 5.*PLAYER_LIGHT*smoothstep(0., 8., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.2);
 

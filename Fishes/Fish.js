@@ -46,9 +46,9 @@ Fish.prototype.movement = function (dt, fishes) {
 
 
     let notSubmergedArea = Math.max(0, this.pos.y);
-    this.vel.y -= 60*notSubmergedArea*this.radius*dt;
+    this.vel.y -= 55*notSubmergedArea*this.radius*dt;
 
-    this.vel = lerpDt(this.vel, targetVel, 0.9, 1, dt);
+    if(notSubmergedArea <= 0) this.vel = lerpDt(this.vel, targetVel, 0.96, 1, dt);
     this.pos = this.pos.add(this.vel.mul(dt));
 
     if(dp.length() < this.radius+this.world.player.radius){
