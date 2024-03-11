@@ -76,6 +76,14 @@ const worldFragmentShaderString = /*glsl*/ `
         return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
     }
 
+    float smoothMax( float d1, float d2, float k ) {
+        float h = clamp( 0.5 - 0.5*(d2-d1)/k, 0.0, 1.0 );
+        return mix( d2, d1, h ) + k*h*(1.0-h); }
+      
+      float smoothMin( float d1, float d2, float k ) {
+        float h = clamp( 0.5 + 0.5*(d2-d1)/k, 0.0, 1.0 );
+        return mix( d2, d1, h ) - k*h*(1.0-h); }
+
     vec2 coordToWorldPos(vec2 c){
         vec2 p = (c-.5*u_resolution.xy)/u_resolution.y;
         p /= u_camZoom;
@@ -98,9 +106,19 @@ const worldFragmentShaderString = /*glsl*/ `
         return length(p-u_playerPos) - u_playerRadius;
     }
 
+    float sdPillar(vec2 p){
+        vec2 fp = vec2(p.x, fract(clamp(p.y, 0., 4.))-.5);
+        return sdBox(fp, vec2(.3))-.2;
+    }
+
     float sdGround(vec2 p){
         vec2 rp = rotate2d(-.4)*p;
-        return rp.y+80.+noise(p*0.5)*0.7+noise(p*1.5)*0.5;
+        vec2 rp2 = rotate2d(.4)*p;
+        float leftSlope = rp.y+80.;
+        float rightSlope = rp2.y+80.;
+        float slopes = smoothMin(leftSlope, rightSlope, 2.);
+        float hole = length(p-vec2(0., -90.))-30.;
+        return min(smoothMax(slopes, -hole, 6.)+noise(p*0.5)*0.7+noise(p*1.5)*0.5, sdPillar(p*.5)*2.);
     }
     vec2 gradient(vec2 p){
         vec2 h = vec2(0.05, 0.);
@@ -167,7 +185,7 @@ const worldFragmentShaderString = /*glsl*/ `
                     col = vec3(.5);
                 }
 
-                if(lp < .03) col = mix(col, vec3(1), .5);
+                if(lp < .03) col = mix(col, vec3(1), .7);
                 col = mix(PLAYER_LIGHT, col, smoothstep(0.05, 0.2, lp)*.6+.4);
                 col = mix(vec3(1), col, smoothstep(0.01, 0.15, lp)*.6+.4);
                 //col = mix(vec3(1, 1, 0.7), col, 1.-0.5*smoothstep(0.1, 1., length(playerP)));
@@ -190,15 +208,15 @@ const worldFragmentShaderString = /*glsl*/ `
                 }
                 if(dr < 0.15){
                     col = vec3(0.05);
-                    vec2 radarP = (playerP-vec2(0.2, -0.1))*300.+u_playerPos;
-                    vec2 fRadarP = fract(radarP*0.2);
+                    vec2 radarP = (playerP-vec2(0.2, -0.1))*400.+u_playerPos;
+                    vec2 fRadarP = fract(radarP*0.15);
                     if(fRadarP.x < 0.05 || fRadarP.y < 0.05 || fRadarP.x > 1.-0.05 || fRadarP.y > 1.-0.05){
                         col = mix(col, RADAR_GREEN, 0.5);
                     }
                     //if(floor(fRadarP))
 
                     float s = sin(radarP.x);
-                    if(radarP.y < s && radarP.y+0.5 >= s){
+                    if(radarP.y < s && radarP.y+.7 >= s){
                         col = RADAR_GREEN;
                     }
                     if(sdGround(radarP) <= 0.){

@@ -8,6 +8,7 @@ const abs = Math.abs;
 function mix(a, b, x){
     return a+(b-a)*x;
 }
+const lerp = mix;
 const floor = Math.floor;
 
 function rand(p) {
@@ -38,4 +39,15 @@ function noise(n) {
         mix(rand(b), rand(b.add(d.yx())), f.x),
         mix(rand(b.add(d)), rand(b.add(d.yy())), f.x),
         f.y);
+}
+
+
+
+function smoothMin(d1, d2, k){
+	let h = clamp( 0.5 + 0.5*(d2-d1)/k, 0.0, 1.0 );
+	return lerp(d2, d1, h) - k*h*(1.0-h);
+}
+function smoothMax(d1, d2, k){
+	let h = clamp( 0.5 - 0.5*(d2-d1)/k, 0.0, 1.0 );
+	return lerp(d2, d1, h) + k*h*(1.0-h);
 }
