@@ -15,6 +15,11 @@ const CollisionMap = {
     gradient: function (p) {
         const h = vec(0.05, 0.);
         return (vec(this.sdf(p.add(h)) - this.sdf(p.sub(h)), this.sdf(p.add(h.yx())) - this.sdf(p.sub(h.yx())))).normalize();
+    },
+    waterLevel: function(x, time){
+        x *= 0.8;
+        let y = Math.sin(x*3.+time*2.)*0.1+Math.cos(x*2.-time*2.)*0.15;
+        return y*0.7;
     }
 }
 

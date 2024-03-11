@@ -118,7 +118,7 @@ const worldFragmentShaderString = /*glsl*/ `
         float rightSlope = rp2.y+80.;
         float slopes = smoothMin(leftSlope, rightSlope, 2.);
         float hole = length(p-vec2(0., -90.))-30.;
-        return min(smoothMax(slopes, -hole, 6.)+noise(p*0.5)*0.7+noise(p*1.5)*0.5, sdPillar(p*.5)*2.);
+        return smoothMax(slopes, -hole, 6.)+noise(p*0.5)*0.7+noise(p*1.5)*0.5;
     }
     vec2 gradient(vec2 p){
         vec2 h = vec2(0.05, 0.);
@@ -273,7 +273,7 @@ const worldFragmentShaderString = /*glsl*/ `
         
 
         if(isInWater){
-            float la = smoothstep(0., 12., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5);
+            float la = smoothstep(0., 14.5, length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5);
             float sz = smoothstep(0., 1., u_camZoom);
             col = mix(PLAYER_LIGHT, col, (1.-sz)*(0.6+0.4*la)+sz);
             vec2 pp = p*.5+vec2(noise(u_time*.3), noise(u_time*.3+174.));
@@ -290,6 +290,13 @@ const worldFragmentShaderString = /*glsl*/ `
 
 
 
+        // vignette effect from https://www.shadertoy.com/view/lsKSWR by Ippokratis
+        vec2 vigUv = gl_FragCoord.xy / u_resolution.xy;
+        vigUv *=  1.0 - vigUv.yx;
+        float vig = vigUv.x*vigUv.y * 15.0;
+        vig = pow(vig, 0.25);
+    
+        col *= mix(vig, 1., smoothstep(-50., -20., u_playerPos.y));
 
         gl_FragColor = vec4(col, 1);
     }

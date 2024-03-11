@@ -17,7 +17,8 @@ function lerpDt(a, b, p, t, dt){
 }
 
 
-function Player(pos) {
+function Player(pos, world) {
+    this.world = world;
     this.pos = pos;
     this.radius = 1;
 
@@ -53,19 +54,24 @@ Player.prototype.movement = function (dt) {
     const targetVel = keyDir.mul(this.spd);
 
 
-    let notSubmergedArea = Math.max(0, this.pos.y);
+    let notSubmergedArea = Math.max(0, this.pos.y-CollisionMap.waterLevel(this.pos.x, this.world.time));
     this.vel.y -= 25*notSubmergedArea*this.radius*dt;
 
     if(notSubmergedArea <= 0) this.vel = lerpDt(this.vel, targetVel, 0.96, 1, dt);
     this.pos = this.pos.add(this.vel.mul(dt));
 
     let d;
-    for(let i = 0; i < 10; i++){
+    for(let i = 0; i < 5; i++){
         let normal = CollisionMap.gradient(this.pos);
         let surfaceTowardsSdf = this.pos.sub(normal.mul(this.radius));
         d = CollisionMap.sdf(surfaceTowardsSdf);
         if(d < 0){
-            this.pos = this.pos.add(normal.mul(-d*.25));
+            this.pos = this.pos.add(normal.mul(-d*.5));
+            for(let fish of this.world.fishes.fishes){
+                if(fish.pos.sub(this.pos).length() < 8*this.radius){
+                    fish.swarm = true;
+                }
+            }
         }
     }
 

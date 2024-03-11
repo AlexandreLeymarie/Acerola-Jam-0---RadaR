@@ -2,7 +2,7 @@
 function World(gl) {
     this.time = 0;
     
-    this.player = new Player(vec(0, 0));
+    this.player = new Player(vec(0, 0), this);
     this.cam = { pos: this.player.pos.copy(), zoom: 0.04 };
     
     this.lookingAtRadarEase = {

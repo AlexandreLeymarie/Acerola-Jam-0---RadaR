@@ -6,7 +6,12 @@ function Fishes(gl, world){
 
     this.fishes = [];
     for(let i = 0; i < 1000; i++){
-        this.fishes.push(new Fish(vec((i%20), -Math.floor(i/20)), this.world));
+        //this.fishes.push(new Fish(vec((i%20), -Math.floor(i/20)), this.world));
+        let pos;
+        do{
+            pos = vec(Math.random()*60-30, -30-Math.random()*80);
+        }while(CollisionMap.sdf(pos) < 0);
+        this.fishes.push(new Fish(pos, this.world));
     }
 
     this.initGl(gl);
@@ -44,6 +49,7 @@ Fishes.prototype.initUniforms = function (gl) {
     this.scaleUniformLocation = gl.getUniformLocation(this.program, "u_scale");
     this.fishRadiusUniformLocation = gl.getUniformLocation(this.program, "u_fishRadius");
     this.fishVelUniformLocation = gl.getUniformLocation(this.program, "u_fishVel");
+    this.fishIsAngryUniformLocation = gl.getUniformLocation(this.program, "u_isAngry");
 }
 
 Fishes.prototype.update = function(dt){
@@ -68,6 +74,7 @@ Fishes.prototype.draw = function (gl) {
         gl.uniform2f(this.scaleUniformLocation, fish.scale.x, fish.scale.y);
         gl.uniform1f(this.fishRadiusUniformLocation, fish.radius);
         gl.uniform2f(this.fishVelUniformLocation, fish.vel.x, fish.vel.y);
+        gl.uniform1i(this.fishIsAngryUniformLocation, fish.swarm);
 
         gl.drawArrays(gl.TRIANGLES, 0, this.positions.length / 2);
     }
