@@ -65,7 +65,7 @@ Fish.prototype.movement = function (dt, fishes) {
             avoidVector = avoidVector.add(dp.normalize().mul(-1));
             speed = this.spd*1.5;
         }
-        targetVel = this.vel.add(avoidVector.mul(5)).add(alignDir.mul(5)).normalize().mul(speed);
+        targetVel = this.vel.add(vec(noise(vec(this.seed+this.world.time))*2-1, .25*(noise(vec(this.seed*2+this.world.time))*2-1)).normalize().mul(.3)).add(avoidVector.mul(5)).add(alignDir.mul(5)).normalize().mul(speed);
         /*targetVel = vec(noise(vec(this.seed+this.world.time))*2-1, noise(vec(this.seed*2+this.world.time))*2-1).normalize().add(avoidVector.mul(4)).add(alignDir.mul(10)).normalize().mul(speed);*/
         //console.log(targetVel);
     }
@@ -81,7 +81,12 @@ Fish.prototype.movement = function (dt, fishes) {
 
     if(dp.length() < this.radius+playerTarget.radius){
         this.pos = playerTarget.pos.sub(dp.normalize().mul(this.radius+playerTarget.radius));
-        if(this.swarm) playerTarget.vel = playerTarget.vel.add(dp.normalize().mul(playerTarget.spd*2));
+        if(this.swarm){
+            playerTarget.vel = playerTarget.vel.add(dp.normalize().mul(playerTarget.spd*2));
+            if(playerTarget == this.world.player){
+                playerTarget.hp -= 1;
+            }
+        }
     }
 
     let d;

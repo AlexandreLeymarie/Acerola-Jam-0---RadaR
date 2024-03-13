@@ -15,7 +15,7 @@ function Diver(pos, world) {
 Diver.prototype.update = function (dt) {
     this.movement(dt);
 
-    if(this.player.pos.sub(this.pos).length() < this.player.radius){
+    if(this.player.pos.sub(this.pos).length() < this.player.radius && !this.dead){
         this.player.diver = null;
     }
 
@@ -39,7 +39,7 @@ Diver.prototype.movement = function (dt) {
 
 
     let notSubmergedArea = Math.min(Math.max(0, this.pos.y-CollisionMap.waterLevel(this.pos.x, this.world.time)), this.radius*2);
-    if(notSubmergedArea > 0){
+    if(notSubmergedArea > 0 && !this.dead){
         this.oxygen = this.maxOxygen;
     }
     this.vel.y -= 40*notSubmergedArea*dt;

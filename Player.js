@@ -32,6 +32,7 @@ function Player(pos, world) {
     this.exitKey = false;
     this.lastExitKey = false;
     this.diver = null;
+    this.hp = 5;
 }
 
 Player.prototype.update = function (dt) {
@@ -51,7 +52,7 @@ Player.prototype.updateRadarOnKeyPress = function(){
 
 Player.prototype.updateDiverOnKeyPress = function(){
     this.exitKey = KEYLIST["KeyE"];
-    if(this.exitKey && !this.lastExitKey && this.diver === null){
+    if(this.exitKey && !this.lastExitKey && this.diver === null && this.hp > 0){
         this.diver = new Diver(this.pos.add(vec(0, -this.radius*1.02)), this.world);
         this.diver.vel = vec(0, this.vel.y-2);
     }
@@ -66,7 +67,7 @@ Player.prototype.movement = function (dt) {
         (KEYLIST["ArrowUp"] ? 1 : 0) - (KEYLIST["ArrowDown"] ? 1 : 0)
     ).normalize();
 
-    const targetVel = this.diver === null ? keyDir.mul(this.spd) : vec(0, 0);
+    let targetVel = ((this.diver === null && this.hp > 0) ? keyDir.mul(this.spd) : vec(0, 0));
 
 
     let notSubmergedArea = Math.min(Math.max(0, this.pos.y-CollisionMap.waterLevel(this.pos.x, this.world.time)), this.radius*2);
@@ -83,7 +84,7 @@ Player.prototype.movement = function (dt) {
         if(d < 0){
             this.pos = this.pos.add(normal.mul(-d*.5));
             for(let fish of this.world.fishes.fishes){
-                if(fish.pos.sub(this.pos).length() < 8*this.radius){
+                if(fish.pos.sub(this.pos).length() < 16*this.radius){
                     fish.swarm = true;
                 }
             }

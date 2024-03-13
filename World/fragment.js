@@ -20,6 +20,7 @@ const worldFragmentShaderString = /*glsl*/ `
     uniform vec2 u_playerPos;
     uniform float u_playerRadius;
     uniform vec2 u_playerVel;
+    uniform float u_playerHp;
 
     uniform vec2 u_diverPos;
     uniform float u_diverRadius;
@@ -330,7 +331,15 @@ const worldFragmentShaderString = /*glsl*/ `
         float vig = vigUv.x*vigUv.y * 15.0;
         vig = pow(vig, 0.25);
     
-        col *= mix(vig, 1., smoothstep(-50., -20., u_playerPos.y));
+
+        float d;
+        if(u_diverOxygen < 0.5){
+            d = u_playerPos.y;
+        } else {
+            d = u_diverPos.y;
+        }
+
+        col *= mix(vig, 1., smoothstep(-50., -20., d));
 
 
         /*float db = sdBox(gl_FragCoord.xy-vec2(u_resolution.x*0.5, u_resolution.y-25.), vec2(u_resolution.x*0.9*0.5*u_diverOxygen/15., 1.));

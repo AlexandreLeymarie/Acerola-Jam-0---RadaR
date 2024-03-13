@@ -52,6 +52,7 @@ World.prototype.initUniforms = function (gl) {
     this.playerPosUniformLocation = gl.getUniformLocation(this.program, "u_playerPos");
     this.playerRadiusUniformLocation = gl.getUniformLocation(this.program, "u_playerRadius");
     this.playerVelUniformLocation = gl.getUniformLocation(this.program, "u_playerVel");
+    this.playerHpUniformLocation = gl.getUniformLocation(this.program, "u_playerHp");
 
     this.diverPosUniformLocation = gl.getUniformLocation(this.program, "u_diverPos");
     this.diverRadiusUniformLocation = gl.getUniformLocation(this.program, "u_diverRadius");
@@ -121,6 +122,7 @@ World.prototype.draw = function (gl, ctx) {
     gl.uniform2f(this.playerPosUniformLocation, this.player.pos.x, this.player.pos.y);
     gl.uniform1f(this.playerRadiusUniformLocation, this.player.radius);
     gl.uniform2f(this.playerVelUniformLocation, this.player.vel.x, this.player.vel.y);
+    gl.uniform1f(this.playerHpUniformLocation, this.player.hp);
 
     if(this.player.diver !== null){
         gl.uniform2f(this.diverPosUniformLocation, this.player.diver.pos.x, this.player.diver.pos.y);
@@ -148,7 +150,7 @@ World.prototype.draw = function (gl, ctx) {
     this.fishes.draw(gl);
 
     if(this.player.diver){
-        let ow = ctx.canvas.width*0.9*this.player.diver.oxygen/this.player.diver.maxOxygen;
+        let ow = ctx.canvas.width*0.9*Math.pow(this.player.diver.oxygen/this.player.diver.maxOxygen, 2);
         ctx.fillStyle = "white";
         ctx.fillRect(ctx.canvas.width/2-ow/2, 10, ow, 2);
     }
