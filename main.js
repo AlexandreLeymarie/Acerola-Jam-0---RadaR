@@ -63,7 +63,7 @@ function loop(){
     ctx.clearRect(0, 0, cv2d.width, cv2d.height);
     ctx.fillText("fps: " + Math.round(1000/(sum/n)), 10, 20);
 
-    world.draw(gl);
+    world.draw(gl, ctx);
     world.update(dtInSeconds);
 
     requestAnimationFrame(loop);

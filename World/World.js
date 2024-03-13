@@ -56,6 +56,7 @@ World.prototype.initUniforms = function (gl) {
     this.diverPosUniformLocation = gl.getUniformLocation(this.program, "u_diverPos");
     this.diverRadiusUniformLocation = gl.getUniformLocation(this.program, "u_diverRadius");
     this.diverVelUniformLocation = gl.getUniformLocation(this.program, "u_diverVel");
+    this.diverOxygenUniformLocation = gl.getUniformLocation(this.program, "u_diverOxygen");
 }
 
 
@@ -110,7 +111,7 @@ World.prototype.manageLookingAtRadarEase = function(dt){
 }
 
 
-World.prototype.draw = function (gl) {
+World.prototype.draw = function (gl, ctx) {
     gl.useProgram(this.program);
 
     gl.uniform1f(this.timeUniformLocation, this.time);
@@ -125,10 +126,12 @@ World.prototype.draw = function (gl) {
         gl.uniform2f(this.diverPosUniformLocation, this.player.diver.pos.x, this.player.diver.pos.y);
         gl.uniform1f(this.diverRadiusUniformLocation, this.player.diver.radius);
         gl.uniform2f(this.diverVelUniformLocation, this.player.diver.vel.x, this.player.diver.vel.y);
+        gl.uniform1f(this.diverOxygenUniformLocation, this.player.diver.oxygen);
     } else {
         gl.uniform2f(this.diverPosUniformLocation, 1000, 0);
         gl.uniform1f(this.diverRadiusUniformLocation, 0);
         gl.uniform2f(this.diverVelUniformLocation, 0, 0);
+        gl.uniform1f(this.diverOxygenUniformLocation, -1);
     }
 
 
@@ -143,5 +146,11 @@ World.prototype.draw = function (gl) {
     gl.drawArrays(gl.TRIANGLES, 0, this.positions.length / 2);
 
     this.fishes.draw(gl);
+
+    if(this.player.diver){
+        let ow = ctx.canvas.width*0.9*this.player.diver.oxygen/this.player.diver.maxOxygen;
+        ctx.fillStyle = "white";
+        ctx.fillRect(ctx.canvas.width/2-ow/2, 10, ow, 2);
+    }
 }
 

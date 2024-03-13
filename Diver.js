@@ -6,6 +6,10 @@ function Diver(pos, world) {
 
     this.vel = vec(0);
     this.spd = 9;
+
+    this.oxygen = 15;
+    this.maxOxygen = 15;
+    this.dead = false;
 }
 
 Diver.prototype.update = function (dt) {
@@ -13,6 +17,12 @@ Diver.prototype.update = function (dt) {
 
     if(this.player.pos.sub(this.pos).length() < this.player.radius){
         this.player.diver = null;
+    }
+
+    this.oxygen -= dt;
+    if(this.oxygen < 0){
+        this.oxygen = 0;
+        this.dead = true;
     }
 }
 
@@ -25,10 +35,13 @@ Diver.prototype.movement = function (dt) {
         (KEYLIST["ArrowUp"] ? 1 : 0) - (KEYLIST["ArrowDown"] ? 1 : 0)
     ).normalize();
 
-    const targetVel = keyDir.mul(this.spd);
+    const targetVel = this.dead ? vec(0) : keyDir.mul(this.spd);
 
 
     let notSubmergedArea = Math.min(Math.max(0, this.pos.y-CollisionMap.waterLevel(this.pos.x, this.world.time)), this.radius*2);
+    if(notSubmergedArea > 0){
+        this.oxygen = this.maxOxygen;
+    }
     this.vel.y -= 40*notSubmergedArea*dt;
 
     if(notSubmergedArea <= 0) this.vel = lerpDt(this.vel, targetVel, 0.96, 1, dt);

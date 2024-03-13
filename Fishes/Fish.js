@@ -26,9 +26,10 @@ Fish.prototype.update = function(dt, fishes){
 Fish.prototype.movement = function (dt, fishes) {
     this.lastPos = this.pos.copy();
 
+    let playerTarget = this.world.player.diver ? this.world.player.diver : this.world.player;
 
     let targetVel;
-    let dp = this.world.player.pos.sub(this.pos);
+    let dp = playerTarget.pos.sub(this.pos);
 
         let avoidVector = vec(0);
         let alignDir = vec(0);
@@ -60,7 +61,7 @@ Fish.prototype.movement = function (dt, fishes) {
         targetVel = dp.normalize().add(avoidVector.mul(5)).add(alignDir.mul(5)).normalize().mul(this.spd);
     } else {
         let speed = this.spd*0.4;
-        if(dp.length() < this.world.player.radius*3){
+        if(dp.length() < playerTarget.radius*3){
             avoidVector = avoidVector.add(dp.normalize().mul(-1));
             speed = this.spd*1.5;
         }
@@ -78,9 +79,9 @@ Fish.prototype.movement = function (dt, fishes) {
     if(notSubmergedArea <= 0) this.vel = lerpDt(this.vel, targetVel, 0.96, 1, dt);
     this.pos = this.pos.add(this.vel.mul(dt));
 
-    if(dp.length() < this.radius+this.world.player.radius){
-        this.pos = this.world.player.pos.sub(dp.normalize().mul(this.radius+this.world.player.radius));
-        if(this.swarm) this.world.player.vel = this.world.player.vel.add(dp.normalize().mul(this.world.player.spd*2));
+    if(dp.length() < this.radius+playerTarget.radius){
+        this.pos = playerTarget.pos.sub(dp.normalize().mul(this.radius+playerTarget.radius));
+        if(this.swarm) playerTarget.vel = playerTarget.vel.add(dp.normalize().mul(playerTarget.spd*2));
     }
 
     let d;

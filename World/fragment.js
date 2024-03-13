@@ -24,6 +24,7 @@ const worldFragmentShaderString = /*glsl*/ `
     uniform vec2 u_diverPos;
     uniform float u_diverRadius;
     uniform vec2 u_diverVel;
+    uniform float u_diverOxygen;
 
     float rand(float n){return fract(sin(n*37.382) * 43.523);}
 
@@ -330,6 +331,20 @@ const worldFragmentShaderString = /*glsl*/ `
         vig = pow(vig, 0.25);
     
         col *= mix(vig, 1., smoothstep(-50., -20., u_playerPos.y));
+
+
+        /*float db = sdBox(gl_FragCoord.xy-vec2(u_resolution.x*0.5, u_resolution.y-25.), vec2(u_resolution.x*0.9*0.5*u_diverOxygen/15., 1.));
+        if(db <= 5.){
+            vec3 lc = col;
+            col = vec3(1.);
+            if(db <= 4.) col = vec3(.4, .4, .8);
+            col = mix(lc, col, .5);
+        }*/
+        /*if(floor(gl_FragCoord.y) == floor(u_resolution.y-5.) && abs(gl_FragCoord.x-u_resolution.x*.5) < u_resolution.x*.5*.9*u_diverOxygen/15.){
+            col = vec3(1.);
+        }*/
+
+        if(u_diverOxygen > -.5) col = mix(col, vec3(0), 0.8*smoothstep(5., 15., 15.-u_diverOxygen));
 
         gl_FragColor = vec4(col, 1);
     }
