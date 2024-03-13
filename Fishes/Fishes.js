@@ -9,7 +9,7 @@ function Fishes(gl, world){
         //this.fishes.push(new Fish(vec((i%20), -Math.floor(i/20)), this.world));
         let pos;
         do{
-            pos = vec(Math.random()*60-30, -30-Math.random()*80);
+            pos = vec(Math.random()*100-30, -30-Math.random()*200);
         }while(CollisionMap.sdf(pos) < 0);
         this.fishes.push(new Fish(pos, this.world));
     }

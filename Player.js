@@ -28,19 +28,34 @@ function Player(pos, world) {
     this.lookingAtRadar = false;
     this.radarKey = false;
     this.lastRadarKey = false;
+
+    this.exitKey = false;
+    this.lastExitKey = false;
+    this.diver = null;
 }
 
 Player.prototype.update = function (dt) {
     this.updateRadarOnKeyPress();
+    this.updateDiverOnKeyPress();
     this.movement(dt);
+    if(this.diver !== null) this.diver.update(dt);
 }
 
 Player.prototype.updateRadarOnKeyPress = function(){
     this.radarKey = KEYLIST["KeyR"];
-    if(this.radarKey && !this.lastRadarKey){
+    if(this.radarKey && !this.lastRadarKey && !this.diver){
         this.lookingAtRadar = !this.lookingAtRadar;
     }
     this.lastRadarKey = this.radarKey;
+}
+
+Player.prototype.updateDiverOnKeyPress = function(){
+    this.exitKey = KEYLIST["KeyE"];
+    if(this.exitKey && !this.lastExitKey && this.diver === null){
+        this.diver = new Diver(this.pos.add(vec(0, -this.radius*1.02)), this.world);
+        this.diver.vel = vec(0, this.vel.y-2);
+    }
+    this.lastExitKey = this.exitKey;
 }
 
 Player.prototype.movement = function (dt) {
@@ -51,10 +66,10 @@ Player.prototype.movement = function (dt) {
         (KEYLIST["ArrowUp"] ? 1 : 0) - (KEYLIST["ArrowDown"] ? 1 : 0)
     ).normalize();
 
-    const targetVel = keyDir.mul(this.spd);
+    const targetVel = this.diver === null ? keyDir.mul(this.spd) : vec(0, 0);
 
 
-    let notSubmergedArea = Math.max(0, this.pos.y-CollisionMap.waterLevel(this.pos.x, this.world.time));
+    let notSubmergedArea = Math.min(Math.max(0, this.pos.y-CollisionMap.waterLevel(this.pos.x, this.world.time)), this.radius*2);
     this.vel.y -= 25*notSubmergedArea*this.radius*dt;
 
     if(notSubmergedArea <= 0) this.vel = lerpDt(this.vel, targetVel, 0.96, 1, dt);

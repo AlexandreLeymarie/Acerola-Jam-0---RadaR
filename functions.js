@@ -51,3 +51,27 @@ function smoothMax(d1, d2, k){
 	let h = clamp( 0.5 - 0.5*(d2-d1)/k, 0.0, 1.0 );
 	return lerp(d2, d1, h) + k*h*(1.0-h);
 }
+
+function cro(a, b) { return a.x*b.y - a.y*b.x; }
+function sdUnevenCapsule( p, pa, pb, ra, rb )
+{
+    p  = p.sub(pa);
+    pb = pb.sub(pa);
+    const h = pb.dot(pb);
+    const q = vec( p.dot(vec(pb.y,-pb.x)), p.dot(pb) ).mul(1/h);
+    
+    //-----------
+    
+    q.x = Math.abs(q.x);
+    
+    const b = ra-rb;
+    const  c = vec(Math.sqrt(h-b*b), b);
+    
+    const k = cro(c,q);
+    const m = c.dot(q);
+    const n = q.dot(q);
+    
+         if( k < 0.0 ) return Math.sqrt(h*(n            )) - ra;
+    else if( k > c.x ) return Math.sqrt(h*(n+1.0-2.0*q.y)) - rb;
+                       return m                       - ra;
+}

@@ -3,7 +3,7 @@ function World(gl) {
     this.time = 0;
     
     this.player = new Player(vec(0, 0), this);
-    this.cam = { pos: this.player.pos.copy(), zoom: 0.04 };
+    this.cam = { pos: this.player.pos.copy(), zoom: 0.06 };
     
     this.lookingAtRadarEase = {
         active: false,
@@ -52,6 +52,10 @@ World.prototype.initUniforms = function (gl) {
     this.playerPosUniformLocation = gl.getUniformLocation(this.program, "u_playerPos");
     this.playerRadiusUniformLocation = gl.getUniformLocation(this.program, "u_playerRadius");
     this.playerVelUniformLocation = gl.getUniformLocation(this.program, "u_playerVel");
+
+    this.diverPosUniformLocation = gl.getUniformLocation(this.program, "u_diverPos");
+    this.diverRadiusUniformLocation = gl.getUniformLocation(this.program, "u_diverRadius");
+    this.diverVelUniformLocation = gl.getUniformLocation(this.program, "u_diverVel");
 }
 
 
@@ -81,7 +85,7 @@ World.prototype.manageLookingAtRadarEase = function(dt){
             this.lookingAtRadarEase.camPosStart= this.cam.pos.copy();
             this.lookingAtRadarEase.camPosEnd= this.player.pos.copy();
             this.lookingAtRadarEase.camZoomStart = this.cam.zoom;
-            this.lookingAtRadarEase.camZoomEnd = 0.08;
+            this.lookingAtRadarEase.camZoomEnd = 0.06;
         }
     }
     if(this.lookingAtRadarEase.active){
@@ -95,8 +99,9 @@ World.prototype.manageLookingAtRadarEase = function(dt){
         this.cam.zoom = this.lookingAtRadarEase.camZoomStart+(this.lookingAtRadarEase.camZoomEnd-this.lookingAtRadarEase.camZoomStart)*st;
     } else {
         if(!this.player.lookingAtRadar){
-            this.cam.pos = lerpDt(this.cam.pos, this.player.pos, 0.95, 1, dt);
-            this.cam.zoom = 0.04;
+            let playerPos = this.player.diver ? this.player.diver.pos : this.player.pos
+            this.cam.pos = lerpDt(this.cam.pos, playerPos, 0.95, 1, dt);
+            this.cam.zoom = 0.06;
         } else {
             this.cam.pos = this.player.pos.add(vec(0.2, -0.1));
             this.cam.zoom = 2;
@@ -115,6 +120,16 @@ World.prototype.draw = function (gl) {
     gl.uniform2f(this.playerPosUniformLocation, this.player.pos.x, this.player.pos.y);
     gl.uniform1f(this.playerRadiusUniformLocation, this.player.radius);
     gl.uniform2f(this.playerVelUniformLocation, this.player.vel.x, this.player.vel.y);
+
+    if(this.player.diver !== null){
+        gl.uniform2f(this.diverPosUniformLocation, this.player.diver.pos.x, this.player.diver.pos.y);
+        gl.uniform1f(this.diverRadiusUniformLocation, this.player.diver.radius);
+        gl.uniform2f(this.diverVelUniformLocation, this.player.diver.vel.x, this.player.diver.vel.y);
+    } else {
+        gl.uniform2f(this.diverPosUniformLocation, 1000, 0);
+        gl.uniform1f(this.diverRadiusUniformLocation, 0);
+        gl.uniform2f(this.diverVelUniformLocation, 0, 0);
+    }
 
 
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);

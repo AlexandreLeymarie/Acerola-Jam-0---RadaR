@@ -21,6 +21,10 @@ const worldFragmentShaderString = /*glsl*/ `
     uniform float u_playerRadius;
     uniform vec2 u_playerVel;
 
+    uniform vec2 u_diverPos;
+    uniform float u_diverRadius;
+    uniform vec2 u_diverVel;
+
     float rand(float n){return fract(sin(n*37.382) * 43.523);}
 
     /*float rand(vec2 p){
@@ -69,11 +73,35 @@ const worldFragmentShaderString = /*glsl*/ `
         return mix(mix(rand(b), rand(b + d.yx), f.x), mix(rand(b + d.xy), rand(b + d.yy), f.x), f.y);
     }
 
-    // from Inigo Quilez
+    // from Inigo Quilez : https://iquilezles.org/articles/distfunctions2d/
     float sdBox( in vec2 p, in vec2 b )
     {
         vec2 d = abs(p)-b;
         return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+    }
+
+    float cro(in vec2 a, in vec2 b ) { return a.x*b.y - a.y*b.x; }
+    float sdUnevenCapsule( in vec2 p, in vec2 pa, in vec2 pb, in float ra, in float rb )
+    {
+        p  -= pa;
+        pb -= pa;
+        float h = dot(pb,pb);
+        vec2  q = vec2( dot(p,vec2(pb.y,-pb.x)), dot(p,pb) )/h;
+        
+        //-----------
+        
+        q.x = abs(q.x);
+        
+        float b = ra-rb;
+        vec2  c = vec2(sqrt(h-b*b),b);
+        
+        float k = cro(c,q);
+        float m = dot(c,q);
+        float n = dot(q,q);
+        
+             if( k < 0.0 ) return sqrt(h*(n            )) - ra;
+        else if( k > c.x ) return sqrt(h*(n+1.0-2.0*q.y)) - rb;
+                           return m                       - ra;
     }
 
     float smoothMax( float d1, float d2, float k ) {
@@ -118,7 +146,8 @@ const worldFragmentShaderString = /*glsl*/ `
         float rightSlope = rp2.y+80.;
         float slopes = smoothMin(leftSlope, rightSlope, 2.);
         float hole = length(p-vec2(0., -90.))-30.;
-        return smoothMax(slopes, -hole, 6.)+noise(p*0.5)*0.7+noise(p*1.5)*0.5;
+        float hole2 = sdUnevenCapsule(p, vec2(0., -120.), vec2(80., -200.), 20., 40.);
+        return smoothMax(smoothMax(smoothMax(slopes, -hole, 6.), p.y+60., 6.), -hole2, 4.)+noise(p*0.5)*0.7+noise(p*1.5)*0.5;
     }
     vec2 gradient(vec2 p){
         vec2 h = vec2(0.05, 0.);
@@ -148,6 +177,10 @@ const worldFragmentShaderString = /*glsl*/ `
             col = mix(SKY, col, clamp(0.4+depth*0.03+waterLevel(p.x+sin(p.y*2.+u_time*2.)*0.1)*.05, 0., 1.2));
             waterCol = col;
 
+        }
+
+        if(length(p-u_diverPos) <= u_diverRadius){
+            col = vec3(0);
         }
 
         float sdPlayerValue = sdPlayer(p);
@@ -264,7 +297,7 @@ const worldFragmentShaderString = /*glsl*/ `
 				if(amountOfLight < 0.){
 					col = mix(waterCol, col, amountOfLight+1.);
 				} else {
-                    float lightColValue = 1.-smoothstep(0., 12., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5);
+                    float lightColValue = 1.-smoothstep(0., 14.5, length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5);
 					col = mix(col, PLAYER_LIGHT, amountOfLight*lightColValue*0.6);
 				}
                 //col = vec3(1);
@@ -273,7 +306,7 @@ const worldFragmentShaderString = /*glsl*/ `
         
 
         if(isInWater){
-            float la = smoothstep(0., 14.5, length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5);
+            float la = smoothstep(0., 14.5, min(length(p-u_playerPos), length(p-u_diverPos)*1.5)+(rand(p+mod(u_time*28.2823, 11.73)))*.5);
             float sz = smoothstep(0., 1., u_camZoom);
             col = mix(PLAYER_LIGHT, col, (1.-sz)*(0.6+0.4*la)+sz);
             vec2 pp = p*.5+vec2(noise(u_time*.3), noise(u_time*.3+174.));
@@ -283,7 +316,7 @@ const worldFragmentShaderString = /*glsl*/ `
             float offsety = fract(offsetx*82.011);
             vec2 offset = (vec2(offsetx, offsety)-.5)*.9;
 
-            if(!isInGround) col = mix(col, vec3(1), smoothstep(-20., -30., p.y)*.2*(1.-la)*(1.-smoothstep(.01, .025,  length(fp-.5+offset))));
+            if(!isInGround) col = mix(col, vec3(1), smoothstep(-15., -30., p.y)*.2*(1.-la)*(1.-smoothstep(.01, .025,  length(fp-.5+offset))));
             //float lightAmount = 1.-smoothstep(0., 8., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5);
             //col += 0.5*PLAYER_LIGHT*(1.-smoothstep(0., 8., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5));
         }
