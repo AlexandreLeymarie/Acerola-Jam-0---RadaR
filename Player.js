@@ -33,6 +33,9 @@ function Player(pos, world) {
     this.lastExitKey = false;
     this.diver = null;
     this.hp = 5;
+    this.linked = false;
+    this.timeSinceWon = -1;
+    this.won = false;
 }
 
 Player.prototype.update = function (dt) {
@@ -71,9 +74,20 @@ Player.prototype.movement = function (dt) {
 
 
     let notSubmergedArea = Math.min(Math.max(0, this.pos.y-CollisionMap.waterLevel(this.pos.x, this.world.time)), this.radius*2);
-    this.vel.y -= 25*notSubmergedArea*this.radius*dt;
+    if(notSubmergedArea > 0 && this.linked && !this.won){
+        this.timeSinceWon = 0;
+        this.won = true;
+    }
+    if(this.timeSinceWon > -0.5){
+        this.timeSinceWon += dt;
+    }
+    if(this.won && this.timeSinceWon > 1){
+        targetVel = vec(0, 5);
+    } else {
+        this.vel.y -= 25*notSubmergedArea*this.radius*dt;
+    }
 
-    if(notSubmergedArea <= 0) this.vel = lerpDt(this.vel, targetVel, 0.96, 1, dt);
+    if(notSubmergedArea <= 0 || this.won) this.vel = lerpDt(this.vel, targetVel, 0.96, 1, dt);
     this.pos = this.pos.add(this.vel.mul(dt));
 
     let d;

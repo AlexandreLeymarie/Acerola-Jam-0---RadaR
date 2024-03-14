@@ -83,7 +83,7 @@ Fish.prototype.movement = function (dt, fishes) {
         this.pos = playerTarget.pos.sub(dp.normalize().mul(this.radius+playerTarget.radius));
         if(this.swarm){
             playerTarget.vel = playerTarget.vel.add(dp.normalize().mul(playerTarget.spd*2));
-            if(playerTarget == this.world.player){
+            if(playerTarget == this.world.player && ! this.world.player.won){
                 playerTarget.hp -= 1;
             }
         }

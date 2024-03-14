@@ -57,6 +57,7 @@ World.prototype.initUniforms = function (gl) {
     this.playerRadiusUniformLocation = gl.getUniformLocation(this.program, "u_playerRadius");
     this.playerVelUniformLocation = gl.getUniformLocation(this.program, "u_playerVel");
     this.playerHpUniformLocation = gl.getUniformLocation(this.program, "u_playerHp");
+    this.playerTimeSinceWonUniformLocation = gl.getUniformLocation(this.program, "u_playerTimeSinceWon");
 
     this.submarinePosUniformLocation = gl.getUniformLocation(this.program, "u_submarinePos");
     this.submarineRadiusUniformLocation = gl.getUniformLocation(this.program, "u_submarineRadius");
@@ -110,8 +111,10 @@ World.prototype.manageLookingAtRadarEase = function(dt){
         this.cam.zoom = this.lookingAtRadarEase.camZoomStart+(this.lookingAtRadarEase.camZoomEnd-this.lookingAtRadarEase.camZoomStart)*st;
     } else {
         if(!this.player.lookingAtRadar){
-            let playerPos = this.player.diver ? this.player.diver.pos : this.player.pos
-            this.cam.pos = lerpDt(this.cam.pos, playerPos, 0.95, 1, dt);
+            if(!this.player.won){
+                let playerPos = this.player.diver ? this.player.diver.pos : this.player.pos
+                this.cam.pos = lerpDt(this.cam.pos, playerPos, 0.95, 1, dt);
+            }
             this.cam.zoom = 0.06;
         } else {
             this.cam.pos = this.player.pos.add(vec(0.2, -0.1));
@@ -132,6 +135,7 @@ World.prototype.draw = function (gl, ctx) {
     gl.uniform1f(this.playerRadiusUniformLocation, this.player.radius);
     gl.uniform2f(this.playerVelUniformLocation, this.player.vel.x, this.player.vel.y);
     gl.uniform1f(this.playerHpUniformLocation, this.player.hp);
+    gl.uniform1f(this.playerTimeSinceWonUniformLocation, this.player.timeSinceWon);
 
     gl.uniform2f(this.submarinePosUniformLocation, this.submarine.pos.x, this.submarine.pos.y);
     gl.uniform1f(this.submarineRadiusUniformLocation, this.submarine.radius);

@@ -21,6 +21,7 @@ const worldFragmentShaderString = /*glsl*/ `
     uniform float u_playerRadius;
     uniform vec2 u_playerVel;
     uniform float u_playerHp;
+    uniform float u_playerTimeSinceWon;
 
     uniform vec2 u_submarinePos;
     uniform float u_submarineRadius;
@@ -199,6 +200,10 @@ const worldFragmentShaderString = /*glsl*/ `
 
         if(u_submarineLinked && sdSegment(p, u_playerPos, u_submarinePos) < .05){
             col = vec3(.1);
+        }
+
+        if(u_playerTimeSinceWon > -0.5 && sdSegment(p, u_playerPos+vec2(0, 10), mix(u_playerPos+vec2(0, 10), u_playerPos, smoothstep(0., 1., u_playerTimeSinceWon))) < .1){
+            col = vec3(.6);
         }
 
         float sdPlayerValue = sdPlayer(p);
