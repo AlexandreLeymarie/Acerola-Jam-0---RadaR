@@ -285,6 +285,9 @@ World.prototype.draw = function (gl, ctx) {
         drawText("Tip : exit the submersible to attract the fishes away from it", cv.width/2, cv.height/2+100, ctx);
         drawText("then come back once the path is cleared", cv.width/2, cv.height/2+200, ctx);
     }
+    if(this.player.diver && this.player.diver.oxygen <= 0){
+        drawText("You ran out of oxygen! (reload the page to retry)", cv.width/2, cv.height/2, ctx);
+    }
     if(this.player.won){
         drawText("Congratulations! You successfully saved the submersible!", cv.width/2, cv.height/2-300, ctx);
     }
