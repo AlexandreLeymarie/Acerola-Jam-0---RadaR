@@ -22,6 +22,7 @@ const worldFragmentShaderString = /*glsl*/ `
     uniform vec2 u_playerVel;
     uniform float u_playerHp;
     uniform float u_playerTimeSinceWon;
+    uniform float u_playerTimeSinceHurt;
 
     uniform vec2 u_submarinePos;
     uniform float u_submarineRadius;
@@ -32,6 +33,9 @@ const worldFragmentShaderString = /*glsl*/ `
     uniform float u_diverRadius;
     uniform vec2 u_diverVel;
     uniform float u_diverOxygen;
+
+    uniform vec2 u_massPos;
+    uniform float u_massRadius;
 
     float rand(float n){return fract(sin(n*37.382) * 43.523);}
 
@@ -194,9 +198,6 @@ const worldFragmentShaderString = /*glsl*/ `
 
         }
 
-        if(length(p-u_diverPos) <= u_diverRadius){
-            col = vec3(.2);
-        }
 
         if(u_submarineLinked && sdSegment(p, u_playerPos, u_submarinePos) < .05){
             col = vec3(.1);
@@ -210,10 +211,11 @@ const worldFragmentShaderString = /*glsl*/ `
         bool isInSub = length(p-u_submarinePos) <= u_submarineRadius;
         if(sdPlayerValue <= 0. || isInSub){
             col = PLAYER;//vec3(0.2, 0.3, 0.4);
-            vec2 playerP = (p-u_playerPos)/u_playerRadius;
+            float cz = smoothstep(0., 1., u_camZoom);
+            vec2 playerP = ((p-u_playerPos)/u_playerRadius)*rotate2d(u_playerVel.x*(.1*(1.-cz)+.02*cz));
 
             if(isInSub){
-                playerP = (p-u_submarinePos)/u_submarineRadius;
+                playerP = ((p-u_submarinePos)/u_submarineRadius)*rotate2d(u_submarineVel.x*.1);
                 col = mix(col, vec3(1, 0, 0), .2);
             }
 
@@ -222,7 +224,7 @@ const worldFragmentShaderString = /*glsl*/ `
 
 
             if(abs(playerP.y) < 0.35){// && length(playerP) < 0.9){// && abs(playerP.x) > 0.07){
-                col = mix(PLAYER_LIGHT, waterCol, .3+(smoothstep(0., 1., u_camZoom))*.5);
+                col = mix(PLAYER_LIGHT, waterCol, .3+cz*.5);
 
 
                 float floorL = length(vec2(playerP.x, (playerP.y+.35)*4.));
@@ -288,6 +290,10 @@ const worldFragmentShaderString = /*glsl*/ `
                         col = RADAR_GREEN;
                     }
 
+                    if(length(radarP-u_massPos) <= u_massRadius){
+                        col = vec3(1, 0, 0);
+                    }
+
                     if(!u_submarineLinked){
                         vec2 dsub = radarP-u_submarinePos;
                         float lsub = length(dsub);
@@ -343,11 +349,15 @@ const worldFragmentShaderString = /*glsl*/ `
             }*/
 
 
+
+            
             if(p.y <= waterLevelValue){
                 col = mix(col, waterCol, (1.-smoothstep(0., 1., u_camZoom))*.4);
             }
             //if(isInWater) col += 5.*PLAYER_LIGHT*smoothstep(0., 8., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.2);
-
+            if(!isInSub){
+                col = mix(vec3(1), col, smoothstep(0., .5, u_playerTimeSinceHurt));
+            }
         } else {
             /*if(abs(p.y-u_playerPos.y) < abs(p.x-u_playerPos.x)*0.4){
                 col = mix(PLAYER_LIGHT, col, 0.5+0.5*smoothstep(2., 4., length(p-u_playerPos)));
@@ -372,6 +382,9 @@ const worldFragmentShaderString = /*glsl*/ `
             }
         }
         
+        if(sdSegment(p, u_diverPos, u_diverPos-normalize(u_diverVel)*0.1) <= u_diverRadius){
+            col = vec3(0, .2, 0);
+        }
 
         if(isInWater){
             float la = smoothstep(0., 14.5, min(length(p-u_playerPos), length(p-u_diverPos)*1.5)+(rand(p+mod(u_time*28.2823, 11.73)))*.5);

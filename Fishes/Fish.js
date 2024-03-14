@@ -5,7 +5,7 @@ function Fish(pos, world){
     this.interactionsRadius = 0.15;
     this.computeScale();
 
-    this.spd = 4;
+    this.spd = 3;
     this.vel = vec(Math.random()-.5, Math.random()-.5).normalize().mul(this.spd);
 
     this.swarm = false;
@@ -17,9 +17,9 @@ Fish.prototype.computeScale = function(){
 }
 
 Fish.prototype.update = function(dt, fishes){
-    if(KEYLIST["KeyT"]){
+    /*if(KEYLIST["KeyT"]){
         this.swarm = !this.swarm;
-    }
+    }*/
     this.movement(dt, fishes);
 }
 
@@ -83,8 +83,9 @@ Fish.prototype.movement = function (dt, fishes) {
         this.pos = playerTarget.pos.sub(dp.normalize().mul(this.radius+playerTarget.radius));
         if(this.swarm){
             playerTarget.vel = playerTarget.vel.add(dp.normalize().mul(playerTarget.spd*2));
-            if(playerTarget == this.world.player && ! this.world.player.won){
+            if(playerTarget == this.world.player && ! this.world.player.won && this.world.player.timeSinceHurt > 2){
                 playerTarget.hp -= 1;
+                playerTarget.timeSinceHurt = 0;
             }
         }
     }

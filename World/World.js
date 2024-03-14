@@ -58,6 +58,7 @@ World.prototype.initUniforms = function (gl) {
     this.playerVelUniformLocation = gl.getUniformLocation(this.program, "u_playerVel");
     this.playerHpUniformLocation = gl.getUniformLocation(this.program, "u_playerHp");
     this.playerTimeSinceWonUniformLocation = gl.getUniformLocation(this.program, "u_playerTimeSinceWon");
+    this.playerTimeSinceHurtUniformLocation = gl.getUniformLocation(this.program, "u_playerTimeSinceHurt");
 
     this.submarinePosUniformLocation = gl.getUniformLocation(this.program, "u_submarinePos");
     this.submarineRadiusUniformLocation = gl.getUniformLocation(this.program, "u_submarineRadius");
@@ -68,6 +69,9 @@ World.prototype.initUniforms = function (gl) {
     this.diverRadiusUniformLocation = gl.getUniformLocation(this.program, "u_diverRadius");
     this.diverVelUniformLocation = gl.getUniformLocation(this.program, "u_diverVel");
     this.diverOxygenUniformLocation = gl.getUniformLocation(this.program, "u_diverOxygen");
+
+    this.massPosUniformLocation = gl.getUniformLocation(this.program, "u_massPos");
+    this.massRadiusUniformLocation = gl.getUniformLocation(this.program, "u_massRadius");
 }
 
 
@@ -136,6 +140,7 @@ World.prototype.draw = function (gl, ctx) {
     gl.uniform2f(this.playerVelUniformLocation, this.player.vel.x, this.player.vel.y);
     gl.uniform1f(this.playerHpUniformLocation, this.player.hp);
     gl.uniform1f(this.playerTimeSinceWonUniformLocation, this.player.timeSinceWon);
+    gl.uniform1f(this.playerTimeSinceHurtUniformLocation, this.player.timeSinceHurt);
 
     gl.uniform2f(this.submarinePosUniformLocation, this.submarine.pos.x, this.submarine.pos.y);
     gl.uniform1f(this.submarineRadiusUniformLocation, this.submarine.radius);
@@ -153,6 +158,23 @@ World.prototype.draw = function (gl, ctx) {
         gl.uniform2f(this.diverVelUniformLocation, 0, 0);
         gl.uniform1f(this.diverOxygenUniformLocation, -1);
     }
+
+    let n = 0;
+    let massPos = vec(0);
+    let massRadius = 0;
+    for(let fish of this.fishes.fishes){
+        if(fish.swarm && fish.pos.sub(this.player.pos).length() < 20){
+            n++;
+            massPos.x += fish.pos.x;
+            massPos.y += fish.pos.y;
+        }
+    }
+    massPos = massPos.mul(1/n);
+    if(n > 10){
+        massRadius = n*.2;
+    }
+    gl.uniform2f(this.massPosUniformLocation, massPos.x, massPos.y);
+    gl.uniform1f(this.massRadiusUniformLocation, massRadius);
 
 
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);

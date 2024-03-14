@@ -2,7 +2,7 @@ function Diver(pos, world) {
     this.world = world;
     this.player = this.world.player;
     this.pos = pos;
-    this.radius = 0.2;
+    this.radius = 0.1;
 
     this.vel = vec(0);
     this.spd = 9;
@@ -42,7 +42,7 @@ Diver.prototype.movement = function (dt) {
     if(notSubmergedArea > 0 && !this.dead){
         this.oxygen = this.maxOxygen;
     }
-    this.vel.y -= 40*notSubmergedArea*dt;
+    this.vel.y -= 80*notSubmergedArea*dt;
 
     if(notSubmergedArea <= 0) this.vel = lerpDt(this.vel, targetVel, 0.96, 1, dt);
     this.pos = this.pos.add(this.vel.mul(dt));
@@ -55,9 +55,9 @@ Diver.prototype.movement = function (dt) {
         if(d < 0){
             this.pos = this.pos.add(normal.mul(-d*.5));
             for(let fish of this.world.fishes.fishes){
-                if(fish.pos.sub(this.pos).length() < 8*this.radius){
-                    fish.swarm = true;
-                }
+                //if(fish.pos.sub(this.pos).length() < 8*this.radius){
+                    //fish.swarm = true;
+                //}
             }
         }
     }

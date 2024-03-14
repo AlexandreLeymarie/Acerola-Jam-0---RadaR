@@ -38,9 +38,9 @@ Submarine.prototype.update = function(dt){
         this.world.player.spd *= 0.8;
         this.world.player.linked = true;
         for(let fish of this.world.fishes.fishes){
-            if(fish.pos.sub(this.pos).length() < 16*this.radius){
+            //if(fish.pos.sub(this.pos).length() < 16*this.radius){
                 fish.swarm = true;
-            }
+            //}
         }
     }
 

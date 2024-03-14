@@ -36,6 +36,7 @@ function Player(pos, world) {
     this.linked = false;
     this.timeSinceWon = -1;
     this.won = false;
+    this.timeSinceHurt = 100;
 }
 
 Player.prototype.update = function (dt) {
@@ -43,6 +44,7 @@ Player.prototype.update = function (dt) {
     this.updateDiverOnKeyPress();
     this.movement(dt);
     if(this.diver !== null) this.diver.update(dt);
+    this.timeSinceHurt += dt;
 }
 
 Player.prototype.updateRadarOnKeyPress = function(){
@@ -55,9 +57,9 @@ Player.prototype.updateRadarOnKeyPress = function(){
 
 Player.prototype.updateDiverOnKeyPress = function(){
     this.exitKey = KEYLIST["KeyE"];
-    if(this.exitKey && !this.lastExitKey && this.diver === null && this.hp > 0){
-        this.diver = new Diver(this.pos.add(vec(this.radius*1.02, 0)), this.world);
-        this.diver.vel = vec(this.vel.x+2, 0);
+    if(!this.lookingAtRadar && this.exitKey && !this.lastExitKey && this.diver === null && this.hp > 0){
+        this.diver = new Diver(this.pos.add(vec(0, this.radius*1.1)), this.world);
+        this.diver.vel = vec(0, this.vel.x+3);
     }
     this.lastExitKey = this.exitKey;
 }
@@ -98,9 +100,9 @@ Player.prototype.movement = function (dt) {
         if(d < 0){
             this.pos = this.pos.add(normal.mul(-d*.5));
             for(let fish of this.world.fishes.fishes){
-                if(fish.pos.sub(this.pos).length() < 16*this.radius){
-                    fish.swarm = true;
-                }
+                //if(fish.pos.sub(this.pos).length() < 16*this.radius){
+                    //fish.swarm = true;
+                //}
             }
         }
     }
