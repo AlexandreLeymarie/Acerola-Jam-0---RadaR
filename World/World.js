@@ -264,7 +264,7 @@ World.prototype.draw = function (gl, ctx) {
         if(this.textState >= 1) drawText("A moving mass, abnormally big, deep in the sea…", cv.width/2, 2*cv.height/7, ctx);
         if(this.textState >= 2) drawText("We sent a submersible to investigate…", cv.width/2, 3*cv.height/7, ctx);
         if(this.textState >= 3) drawText("The submersible did not come back.", cv.width/2, 4*cv.height/7, ctx);
-        if(this.textState >= 4) drawText("And the mass just.. vanished ?!", cv.width/2, 5*cv.height/7, ctx);
+        if(this.textState >= 4) drawText("And the mass just.. vanished?!", cv.width/2, 5*cv.height/7, ctx);
         if(this.textState >= 5) drawText("This is the mission to rescue the submersible and unveil the mystery.", cv.width/2, 6*cv.height/7, ctx);
         drawText("press R to continue", cv.width-300, cv.height-80, ctx);
     }
