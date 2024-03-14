@@ -37,6 +37,8 @@ const worldFragmentShaderString = /*glsl*/ `
     uniform vec2 u_massPos;
     uniform float u_massRadius;
 
+    uniform float u_gameState;
+
     float rand(float n){return fract(sin(n*37.382) * 43.523);}
 
     /*float rand(vec2 p){
@@ -307,7 +309,7 @@ const worldFragmentShaderString = /*glsl*/ `
                         if(lsub <= mod(u_time*2.+1., 2.)*10. && lsub > mod(u_time*2.+1., 2.)*10.-.5){
                             col = mix(RADAR_GREEN, col, mod(u_time*2., 2.)/2.);
                         }
-                        if(lsub > 35. && fract(u_time*2.) <.5 ){
+                        if(u_gameState > 0.5 && lsub > 35. && fract(u_time*2.) <.5 ){
                             vec2 n = normalize(vec2(-dsub.y, dsub.x));
                             vec2 nd = normalize(dsub);
                             vec2 p1 = (u_playerPos-nd*32.);

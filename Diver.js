@@ -17,6 +17,12 @@ Diver.prototype.update = function (dt) {
 
     if(this.player.pos.sub(this.pos).length() < this.player.radius && !this.dead){
         this.player.diver = null;
+        if(this.world.state == 5){
+            this.world.state++;
+            window.setTimeout(()=>{
+                this.world.state++;
+            }, 6000);
+        }
     }
 
     this.oxygen -= dt;

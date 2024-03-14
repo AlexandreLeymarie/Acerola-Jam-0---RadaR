@@ -3,11 +3,11 @@ glCv.width = 384*1.6;
 glCv.height = 216*1.6;
 
 const cv2d = document.getElementById("canvas2d");
-cv2d.width = 854*1.5;
-cv2d.height = 480*1.5;
+cv2d.width = 854*3;
+cv2d.height = 480*3;
 
 const ctx = cv2d.getContext("2d");
-ctx.font = "20px Verdana";
+ctx.font = "50px Verdana";
 ctx.fillText("test", 10, 20);
 ctx.fillRect(10, cv2d.height-20, 10, 10);
 ctx.fillRect(cv2d.width-20, cv2d.height-20, 10, 10);
@@ -61,7 +61,7 @@ function loop(){
     }
     const sum = lastNDt.reduce((accumulator, a)=>{return accumulator+a});
     ctx.clearRect(0, 0, cv2d.width, cv2d.height);
-    ctx.fillText("fps: " + Math.round(1000/(sum/n)), 10, 20);
+    //ctx.fillText("fps: " + Math.round(1000/(sum/n)), 10, 20);
 
     world.draw(gl, ctx);
     world.update(dtInSeconds);
