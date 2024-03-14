@@ -56,8 +56,8 @@ Player.prototype.updateRadarOnKeyPress = function(){
 Player.prototype.updateDiverOnKeyPress = function(){
     this.exitKey = KEYLIST["KeyE"];
     if(this.exitKey && !this.lastExitKey && this.diver === null && this.hp > 0){
-        this.diver = new Diver(this.pos.add(vec(0, -this.radius*1.02)), this.world);
-        this.diver.vel = vec(0, this.vel.y-2);
+        this.diver = new Diver(this.pos.add(vec(this.radius*1.02, 0)), this.world);
+        this.diver.vel = vec(this.vel.x+2, 0);
     }
     this.lastExitKey = this.exitKey;
 }
@@ -74,7 +74,7 @@ Player.prototype.movement = function (dt) {
 
 
     let notSubmergedArea = Math.min(Math.max(0, this.pos.y-CollisionMap.waterLevel(this.pos.x, this.world.time)), this.radius*2);
-    if(notSubmergedArea > 0 && this.linked && !this.won){
+    if(notSubmergedArea > 0 && this.linked && !this.won && this.hp > 0){
         this.timeSinceWon = 0;
         this.won = true;
     }

@@ -289,7 +289,8 @@ const worldFragmentShaderString = /*glsl*/ `
                     }
 
                     if(!u_submarineLinked){
-                        float lsub = length(radarP-u_submarinePos);
+                        vec2 dsub = radarP-u_submarinePos;
+                        float lsub = length(dsub);
                         if(lsub <= u_submarineRadius){
                             col = RADAR_GREEN;
                         }
@@ -299,6 +300,24 @@ const worldFragmentShaderString = /*glsl*/ `
                         }
                         if(lsub <= mod(u_time*2.+1., 2.)*10. && lsub > mod(u_time*2.+1., 2.)*10.-.5){
                             col = mix(RADAR_GREEN, col, mod(u_time*2., 2.)/2.);
+                        }
+                        if(lsub > 35. && fract(u_time*2.) <.5 ){
+                            vec2 n = normalize(vec2(-dsub.y, dsub.x));
+                            vec2 nd = normalize(dsub);
+                            vec2 p1 = (u_playerPos-nd*32.);
+                            vec2 pp = (u_playerPos-nd*36.);
+                            vec2 p2 = (u_playerPos-nd*38.);
+                            if(
+                                sdSegment(radarP, p1, p2) < .5 ||
+                                sdSegment(radarP, p2, pp+n*3.) < .5 ||
+                                sdSegment(radarP, p2, pp-n*3.) < .5
+                            ){
+                                if(col == RADAR_GREEN){
+                                    col = vec3(0.05);
+                                } else {
+                                    col = RADAR_GREEN;
+                                }
+                            }
                         }
                     }
 
