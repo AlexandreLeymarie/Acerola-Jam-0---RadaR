@@ -219,6 +219,8 @@ const worldFragmentShaderString = /*glsl*/ `
             if(isInSub){
                 playerP = ((p-u_submarinePos)/u_submarineRadius)*rotate2d(u_submarineVel.x*.1);
                 col = mix(col, vec3(1, 0, 0), .2);
+            } else {
+                col -= (noise(playerP*4.))*(1.-u_playerHp/5.)*2.;
             }
 
 
@@ -434,7 +436,7 @@ const worldFragmentShaderString = /*glsl*/ `
             col = vec3(1.);
         }*/
 
-        if(u_diverOxygen > -.5) col = mix(col, vec3(0), 0.8*smoothstep(5., 15., 15.-u_diverOxygen));
+        if(u_diverOxygen > -.5) col = mix(col, vec3(0), 0.8*smoothstep(5., 30., 30.-u_diverOxygen));
 
         gl_FragColor = vec4(col, 1);
     }

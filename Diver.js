@@ -7,8 +7,8 @@ function Diver(pos, world) {
     this.vel = vec(0);
     this.spd = 9;
 
-    this.oxygen = 15;
-    this.maxOxygen = 15;
+    this.oxygen = 30;
+    this.maxOxygen = 30;
     this.dead = false;
 }
 

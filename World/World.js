@@ -269,7 +269,7 @@ World.prototype.draw = function (gl, ctx) {
         drawText("press R to continue", cv.width-300, cv.height-80, ctx);
     }
     if(this.state == 1){
-        drawText("press R to toggle the Radar view", cv.width-600, cv.height-80, ctx);
+        drawText("press R to toggle the Radar view", cv.width/2, cv.height/4, ctx);
     }
     if(this.state == 2){
         drawText("Use the Arrow keys to move", cv.width/2, cv.height/4, ctx);
@@ -280,6 +280,17 @@ World.prototype.draw = function (gl, ctx) {
     if(this.state == 6){
         drawText("Now find the lost submersible and bring it back to the surface", cv.width/2, cv.height/4, ctx);
     }
+    if(this.player.hp <= 0){
+        drawText("Game Over (reload the page to retry)", cv.width/2, cv.height/2-100, ctx);
+        drawText("Tip : exit the submersible to attract the fishes away from it", cv.width/2, cv.height/2+100, ctx);
+        drawText("then come back once the path is cleared", cv.width/2, cv.height/2+200, ctx);
+    }
+    if(this.player.won){
+        drawText("Congratulations! You successfully saved the submersible!", cv.width/2, cv.height/2-300, ctx);
+    }
+    /*if(this.state == 8){
+        drawText("You are now connected to the submersible", cv.width/2, cv.height/4, ctx);
+    }*/
 }
 
 function drawText(text, x, y, ctx){
