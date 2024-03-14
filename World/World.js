@@ -2,8 +2,12 @@
 function World(gl) {
     this.time = 0;
     
+    this.submarine = new Submarine(vec(2, -6), this);
+
     this.player = new Player(vec(0, 0), this);
     this.cam = { pos: this.player.pos.copy(), zoom: 0.06 };
+
+
     
     this.lookingAtRadarEase = {
         active: false,
@@ -54,6 +58,11 @@ World.prototype.initUniforms = function (gl) {
     this.playerVelUniformLocation = gl.getUniformLocation(this.program, "u_playerVel");
     this.playerHpUniformLocation = gl.getUniformLocation(this.program, "u_playerHp");
 
+    this.submarinePosUniformLocation = gl.getUniformLocation(this.program, "u_submarinePos");
+    this.submarineRadiusUniformLocation = gl.getUniformLocation(this.program, "u_submarineRadius");
+    this.submarineVelUniformLocation = gl.getUniformLocation(this.program, "u_submarineVel");
+    this.submarineLinkedUniformLocation = gl.getUniformLocation(this.program, "u_submarineLinked");
+
     this.diverPosUniformLocation = gl.getUniformLocation(this.program, "u_diverPos");
     this.diverRadiusUniformLocation = gl.getUniformLocation(this.program, "u_diverRadius");
     this.diverVelUniformLocation = gl.getUniformLocation(this.program, "u_diverVel");
@@ -66,9 +75,9 @@ World.prototype.update = function (dt) {
 
     this.lastLookAtRadar = this.player.lookingAtRadar;
     this.player.update(dt);
+    this.submarine.update(dt);
     this.fishes.update(dt);
     this.manageLookingAtRadarEase(dt);
-
 
 
     this.time += dt;
@@ -123,6 +132,11 @@ World.prototype.draw = function (gl, ctx) {
     gl.uniform1f(this.playerRadiusUniformLocation, this.player.radius);
     gl.uniform2f(this.playerVelUniformLocation, this.player.vel.x, this.player.vel.y);
     gl.uniform1f(this.playerHpUniformLocation, this.player.hp);
+
+    gl.uniform2f(this.submarinePosUniformLocation, this.submarine.pos.x, this.submarine.pos.y);
+    gl.uniform1f(this.submarineRadiusUniformLocation, this.submarine.radius);
+    gl.uniform2f(this.submarineVelUniformLocation, this.submarine.vel.x, this.submarine.vel.y);
+    gl.uniform1i(this.submarineLinkedUniformLocation, this.submarine.linked);
 
     if(this.player.diver !== null){
         gl.uniform2f(this.diverPosUniformLocation, this.player.diver.pos.x, this.player.diver.pos.y);

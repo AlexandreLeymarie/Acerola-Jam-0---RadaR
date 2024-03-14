@@ -22,6 +22,11 @@ const worldFragmentShaderString = /*glsl*/ `
     uniform vec2 u_playerVel;
     uniform float u_playerHp;
 
+    uniform vec2 u_submarinePos;
+    uniform float u_submarineRadius;
+    uniform vec2 u_submarineVel;
+    uniform bool u_submarineLinked;
+
     uniform vec2 u_diverPos;
     uniform float u_diverRadius;
     uniform vec2 u_diverVel;
@@ -80,6 +85,13 @@ const worldFragmentShaderString = /*glsl*/ `
     {
         vec2 d = abs(p)-b;
         return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+    }
+
+    float sdSegment( in vec2 p, in vec2 a, in vec2 b )
+    {
+        vec2 pa = p-a, ba = b-a;
+        float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+        return length( pa - ba*h );
     }
 
     float cro(in vec2 a, in vec2 b ) { return a.x*b.y - a.y*b.x; }
@@ -182,13 +194,23 @@ const worldFragmentShaderString = /*glsl*/ `
         }
 
         if(length(p-u_diverPos) <= u_diverRadius){
-            col = vec3(0);
+            col = vec3(.2);
+        }
+
+        if(u_submarineLinked && sdSegment(p, u_playerPos, u_submarinePos) < .05){
+            col = vec3(.1);
         }
 
         float sdPlayerValue = sdPlayer(p);
-        if(sdPlayerValue <= 0.){
+        bool isInSub = length(p-u_submarinePos) <= u_submarineRadius;
+        if(sdPlayerValue <= 0. || isInSub){
             col = PLAYER;//vec3(0.2, 0.3, 0.4);
             vec2 playerP = (p-u_playerPos)/u_playerRadius;
+
+            if(isInSub){
+                playerP = (p-u_submarinePos)/u_submarineRadius;
+                col = mix(col, vec3(1, 0, 0), .2);
+            }
 
 
             float z = sqrt(1.-playerP.x*playerP.x-playerP.y*playerP.y);
@@ -257,10 +279,27 @@ const worldFragmentShaderString = /*glsl*/ `
                     if(sdGround(radarP) <= 0.){
                         col = RADAR_GREEN;
                     }
+
+                    if(!u_submarineLinked){
+                        float lsub = length(radarP-u_submarinePos);
+                        if(lsub <= u_submarineRadius){
+                            col = RADAR_GREEN;
+                        }
+    
+                        if(lsub <= mod(u_time*2., 2.)*10. && lsub > mod(u_time*2., 2.)*10.-.5){
+                            col = mix(RADAR_GREEN, col, mod(u_time*2., 2.)/2.);
+                        }
+                        if(lsub <= mod(u_time*2.+1., 2.)*10. && lsub > mod(u_time*2.+1., 2.)*10.-.5){
+                            col = mix(RADAR_GREEN, col, mod(u_time*2., 2.)/2.);
+                        }
+                    }
+
                     col = mix(col, vec3(0.05), smoothstep(0., smoothstep(0., 1., mod(u_time*1.5, 4.))*1., abs((20.*length(playerP-vec2(0.2, -0.1)))-mod(u_time*1.5, 4.))));
                     if(length(radarP-u_playerPos) <= u_playerRadius){
                         col = RADAR_GREEN;
                     }
+
+
                     //float a = u_time;
                     //float a = atan(radarP.y, radarP.x);
                     //col = mix(col, vec3(0.05), smoothstep(mod(u_time, PI*2.)-PI, mod(u_time-1., PI*2.)-PI, a));
