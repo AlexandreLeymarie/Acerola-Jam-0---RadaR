@@ -242,9 +242,12 @@ const worldFragmentShaderString = /*glsl*/ `
                     col = vec3(.5);
                 }
 
-                if(lp < .03) col = mix(col, vec3(1), .7);
-                col = mix(PLAYER_LIGHT, col, smoothstep(0.05, 0.2, lp)*.6+.4);
-                col = mix(vec3(1), col, smoothstep(0.01, 0.15, lp)*.6+.4);
+                if(!isInSub){
+                    if(lp < .03) col = mix(col, vec3(1), .7);
+                    col = mix(PLAYER_LIGHT, col, smoothstep(0.05, 0.2, lp)*.6+.4);
+                    col = mix(vec3(1), col, smoothstep(0.01, 0.15, lp)*.6+.4);
+                }
+
                 //col = mix(vec3(1, 1, 0.7), col, 1.-0.5*smoothstep(0.1, 1., length(playerP)));
 
                 //if(sdBox(playerP-vec2(0.2, -0.1), vec2(0.15)) < 0.){

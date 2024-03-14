@@ -2,9 +2,9 @@
 function World(gl) {
     this.time = 0;
     
-    this.submarine = new Submarine(vec(2, -6), this);
+    this.submarine = new Submarine(vec(80, -239), this);
 
-    this.player = new Player(vec(0, 0), this);
+    this.player = new Player(vec(40, 0), this);
     this.cam = { pos: this.player.pos.copy(), zoom: 0.06 };
 
 

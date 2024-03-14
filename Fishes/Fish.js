@@ -5,7 +5,7 @@ function Fish(pos, world){
     this.interactionsRadius = 0.15;
     this.computeScale();
 
-    this.spd = 5;
+    this.spd = 4;
     this.vel = vec(Math.random()-.5, Math.random()-.5).normalize().mul(this.spd);
 
     this.swarm = false;

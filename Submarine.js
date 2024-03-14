@@ -28,11 +28,19 @@ Submarine.prototype.update = function(dt){
     }
 
     if(this.linked && dp.length() > this.linkLength){
-        this.pos = this.world.player.pos.sub(dp.normalize().mul(this.linkLength));
+        let tmp = this.world.player.pos;
+        this.pos = tmp.sub(dp.normalize().mul(this.linkLength));
+        //this.world.player.vel = this.world.player.vel.mul(Math.pow(0.9, dt));
     }
 
     if(!this.linked && dp.length() <= this.linkLength){
         this.linked = true;
+        this.world.player.spd *= 0.8;
+        for(let fish of this.world.fishes.fishes){
+            if(fish.pos.sub(this.pos).length() < 16*this.radius){
+                fish.swarm = true;
+            }
+        }
     }
 
     let d;
