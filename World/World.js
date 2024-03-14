@@ -252,7 +252,7 @@ World.prototype.draw = function (gl, ctx) {
     if(this.player.diver){
         let ow = ctx.canvas.width*0.9*Math.pow(this.player.diver.oxygen/this.player.diver.maxOxygen, 2);
         ctx.fillStyle = "white";
-        ctx.fillRect(ctx.canvas.width/2-ow/2, 10, ow, 8);
+        ctx.fillRect(ctx.canvas.width/2-ow/2, ctx.canvas.height-18, ow, 8);
     }
 
     const cv = ctx.canvas;
