@@ -69,6 +69,8 @@ Fishes.prototype.draw = function (gl) {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
     gl.vertexAttribPointer(this.positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
+    const half_resolution = vec(cv2d.width, cv2d.height).mul(.5);
+    let n = 0;
     for(let fish of this.fishes){
         gl.uniform2f(this.positionUniformLocation, fish.pos.x, fish.pos.y);
         gl.uniform2f(this.scaleUniformLocation, fish.scale.x, fish.scale.y);
@@ -76,6 +78,14 @@ Fishes.prototype.draw = function (gl) {
         gl.uniform2f(this.fishVelUniformLocation, fish.vel.x, fish.vel.y);
         gl.uniform1i(this.fishIsAngryUniformLocation, fish.swarm);
 
-        gl.drawArrays(gl.TRIANGLES, 0, this.positions.length / 2);
+        const pos = half_resolution.add((fish.pos.sub(this.world.cam.pos)).mul(this.world.cam.zoom*cv2d.height));
+        const scale = fish.scale.mul(this.world.cam.zoom*cv2d.height);
+        ctx.fillStyle = "rgba(255, 255, 255, .5)";
+        if(!(pos.x-scale.x/2 > cv2d.width || pos.x+scale.x/2 < 0 || pos.y-scale.y/2 > cv2d.height || pos.y+scale.y/2 < 0)){
+            //ctx.fillRect(pos.x-scale.x/2, cv2d.height-pos.y-scale.y/2, scale.x, scale.y);
+            gl.drawArrays(gl.TRIANGLES, 0, this.positions.length / 2);
+            n++;
+        }
     }
+    //console.log(n);
 }

@@ -61,7 +61,8 @@ function loop(){
     }
     const sum = lastNDt.reduce((accumulator, a)=>{return accumulator+a});
     ctx.clearRect(0, 0, cv2d.width, cv2d.height);
-    //ctx.fillText("fps: " + Math.round(1000/(sum/n)), 10, 20);
+    ctx.fillStyle = "white";
+    ctx.fillText("fps: " + Math.round(1000/(sum/n)), 100, 50);
 
     world.draw(gl, ctx);
     world.update(dtInSeconds);
