@@ -19,9 +19,15 @@ function lerpDt(a, b, p, t, dt){
 
 function Player(pos, world) {
     this.world = world;
-    this.pos = pos;
     this.radius = 1;
+    this.startPos = pos;
 
+    this.reset();
+}
+
+Player.prototype.reset = function(){
+    this.pos = this.startPos;
+    this.lastPos = this.pos.copy();
     this.vel = vec(0);
     this.spd = 5;
 

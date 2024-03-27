@@ -1,10 +1,18 @@
 function Submarine(pos, world){
-    this.pos = pos;
+    this.startPos = pos;
     this.world = world;
-    this.vel = vec(0);
+
     this.radius = 1;
     this.linkLength = 3.5;
+
+    this.reset();
+}
+
+Submarine.prototype.reset = function(){
+    this.vel = vec(0);
+    this.pos = this.startPos;
     this.linked = false;
+    this.lastPos = this.pos.copy();
 }
 
 Submarine.prototype.update = function(dt){

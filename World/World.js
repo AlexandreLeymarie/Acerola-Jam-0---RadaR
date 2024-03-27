@@ -29,6 +29,30 @@ function World(gl) {
     this.skipKey = false;
 }
 
+World.prototype.reset = function(){
+    this.fishes.reset();
+    this.player.reset();
+    this.submarine.reset();
+    this.cam.pos = this.player.pos.copy()
+    this.cam.zoom = 0.06;
+    this.lastSkipKey = false;
+    this.skipKey = false;
+
+    this.state = 0;
+    this.textState = 0;
+    
+    this.lookingAtRadarEase = {
+        active: false,
+        camPosStart: null,
+        camPosEnd: null,
+        camZoomStart: null,
+        camZoomEnd: null,
+        time: 0,
+        duration: 0.5
+    }
+    this.time = 0;
+}
+
 World.prototype.initGl = function (gl) {
     this.program = createProgramFromShaderStrings(gl, basicVertexShaderString, worldFragmentShaderString);
 
@@ -83,6 +107,10 @@ World.prototype.initUniforms = function (gl) {
 
 
 World.prototype.update = function (dt) {
+
+    if(KEYLIST["KeyQ"]){
+        this.reset();
+    }
 
 
     if(this.state > 0){

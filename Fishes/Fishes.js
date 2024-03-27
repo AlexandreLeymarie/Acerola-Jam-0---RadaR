@@ -17,6 +17,16 @@ function Fishes(gl, world){
     this.initGl(gl);
 }
 
+Fishes.prototype.reset = function(){
+    for(let fish of this.fishes){
+        let pos;
+        do{
+            pos = vec(Math.random()*100-30, -30-Math.random()*200);
+        }while(CollisionMap.sdf(pos) < 0);
+        fish.reset(pos);
+    }
+}
+
 Fishes.prototype.initGl = function (gl) {
     this.program = createProgramFromShaderStrings(gl, fishVertexShaderString, fishFragmentShaderString);
 

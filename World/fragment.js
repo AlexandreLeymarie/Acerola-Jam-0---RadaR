@@ -401,7 +401,7 @@ const worldFragmentShaderString = /*glsl*/ `
             float offsety = fract(offsetx*82.011);
             vec2 offset = (vec2(offsetx, offsety)-.5)*.9;
 
-            if(!isInGround) col = mix(col, vec3(1), smoothstep(-15., -30., p.y)*.2*(1.-la)*(1.-smoothstep(.01, .025,  length(fp-.5+offset))));
+            if(!isInGround) col = mix(col, vec3(1), smoothstep(-15., -30., p.y)*.2*(1.-la)*(1.-smoothstep(.0012, .02,  length(fp-.5+offset))));
             //float lightAmount = 1.-smoothstep(0., 8., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5);
             //col += 0.5*PLAYER_LIGHT*(1.-smoothstep(0., 8., length(p-u_playerPos)+(rand(p+mod(u_time*28.2823, 11.73)))*.5));
         }

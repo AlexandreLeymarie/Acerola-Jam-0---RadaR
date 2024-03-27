@@ -1,15 +1,20 @@
 function Fish(pos, world){
     this.world = world;
-    this.pos = pos;
     this.radius = 0.1;
     this.interactionsRadius = 0.15;
+    this.spd = 3;
     this.computeScale();
 
-    this.spd = 3;
+    this.reset(pos);
+}
+
+Fish.prototype.reset = function(pos){
+    this.pos = pos;
     this.vel = vec(Math.random()-.5, Math.random()-.5).normalize().mul(this.spd);
 
     this.swarm = false;
     this.seed = Math.random()*10000;
+    this.lastPos = this.pos.copy();
 }
 
 Fish.prototype.computeScale = function(){
